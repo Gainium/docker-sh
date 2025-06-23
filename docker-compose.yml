@@ -1,0 +1,556 @@
+services:
+
+  # =============================================================================
+  # INFRASTRUCTURE SERVICES
+  # =============================================================================
+  
+  mongo:
+    platform: linux/amd64
+    restart: 'unless-stopped'
+    image: 'bitnami/mongodb:latest'
+    hostname: localhost
+    environment:
+      - MONGODB_ROOT_USER=root
+      - MONGODB_ROOT_PASSWORD=${MONGO_DB_PASSWORD}
+      - MONGODB_USERNAME=${MONGO_DB_USERNAME}
+      - MONGODB_PASSWORD=${MONGO_DB_PASSWORD}
+      - MONGODB_DATABASE=${MONGO_DB_NAME}
+      - MONGODB_PORT_NUMBER=${MONGO_DB_PORT}
+    volumes:
+      - 'mongo:/bitnami'
+    healthcheck:
+      test: [
+        "CMD-SHELL",
+        "mongosh --host localhost --port ${MONGO_DB_PORT} --username ${MONGO_DB_USERNAME} --password ${MONGO_DB_PASSWORD} --authenticationDatabase ${MONGO_DB_NAME} --eval 'db.runCommand({ping: 1})' --quiet || exit 1"
+      ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s  # MongoDB first start can take time
+  
+  redis:
+    restart: 'unless-stopped'
+    image: 'bitnami/redis:latest'
+    hostname: localhost
+    environment:
+      - REDIS_AOF_ENABLED=no
+      - REDIS_RDB_POLICY='60#1'
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_MASTER_PASSWORD=${REDIS_PASSWORD}
+    command: /opt/bitnami/scripts/redis/run.sh --maxmemory 3gb --maxmemory-policy allkeys-lru --maxclients 100000
+    privileged: true
+    volumes:
+      - 'redis:/bitnami'
+    healthcheck:
+      test: [
+        "CMD-SHELL",
+        "redis-cli -a ${REDIS_PASSWORD} ping | grep PONG || exit 1"
+      ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+  
+  rabbit:
+    restart: 'unless-stopped'
+    image: 'bitnami/rabbitmq:latest'
+    hostname: localhost
+    environment:
+      - RABBITMQ_SECURE_PASSWORD=yes
+      - RABBITMQ_MANAGEMENT_ALLOW_WEB_ACCESS=true
+      - RABBITMQ_USERNAME=${RABBIT_USER}
+      - RABBITMQ_PASSWORD=${RABBIT_PASSWORD}
+      - RABBITMQ_DISK_FREE_RELATIVE_LIMIT=0.3
+    volumes:
+      - 'rabbitmq:/bitnami'
+    healthcheck:
+      test: [
+        "CMD-SHELL",
+        "rabbitmq-diagnostics -q ping || exit 1"
+      ]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  exchange-connector:
+    image: docker.gainium.io/gainium/exchange-connector:1.0.0
+    restart: 'unless-stopped'
+    hostname: exchange-connector
+    environment:
+      - COINBASEKEY=${COINBASEKEY}
+      - COINBASESECRET=${COINBASESECRET}
+      - NODE_ENV=production
+      - npm_config_loglevel=silent
+      - npm_config_update_notifier=false
+
+  paper-trading:
+    image: docker.gainium.io/gainium/paper-trading:1.0.0
+    restart: 'unless-stopped'
+    hostname: paper-trading
+    environment:
+      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
+      - MONGO_DB_NAME=${MONGO_DB_NAME}
+      - MONGO_DB_PORT=${MONGO_DB_PORT}
+      - MONGO_DB_HOST=${MONGO_DB_HOST}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - PRICEROLE=${PRICEROLE}
+      - NODE_ENV=production
+      - npm_config_loglevel=silent
+      - npm_config_update_notifier=false
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      exchange-connector:
+        condition: service_started
+      price-connector:
+        condition: service_started
+
+  # =============================================================================
+  # MAIN-APP SERVICES - All using the same shared image
+  # =============================================================================
+  
+  # Main API service using versioned image from registry
+  api:
+    image: docker.gainium.io/gainium/main-app:1.0.0
+    restart: 'unless-stopped'
+    hostname: api
+    command: ["npm", "run", "server"]  # Override the default command
+    ports:
+      - "${GRAPH_QL_PORT}:${GRAPH_QL_PORT}"
+    environment:
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
+      - MONGO_DB_NAME=${MONGO_DB_NAME}
+      - MONGO_DB_PORT=${MONGO_DB_PORT}
+      - MONGO_DB_HOST=${MONGO_DB_HOST}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - RABBIT_HOST=${RABBIT_HOST}
+      - RABBIT_USER=${RABBIT_USER}
+      - RABBIT_PASSWORD=${RABBIT_PASSWORD}
+      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
+      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL}
+      - GRAPH_QL_PORT=${GRAPH_QL_PORT}
+      - SERVER_HOST=${SERVER_HOST}
+      - BACKTEST_SERVICE_HOST=${BACKTEST_SERVICE_HOST}
+      - JWT_SECRET=${JWT_SECRET}
+      - NODE_ENV=production
+      - CORS_ORIGIN=${CORS_ORIGIN}
+      - npm_config_loglevel=silent
+      - npm_config_update_notifier=false
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbit:
+        condition: service_healthy
+      exchange-connector:
+        condition: service_started
+      paper-trading:
+        condition: service_started
+
+  # Websocket connector using versioned image from registry
+  user-update-connector:
+    image: docker.gainium.io/gainium/websocket-connector:1.0.0
+    restart: 'unless-stopped'
+    hostname: user-update-connector
+    command: ["npm", "run", "main"]  # Override the default command
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - RABBIT_HOST=${RABBIT_HOST}
+      - RABBIT_USER=${RABBIT_USER}
+      - RABBIT_PASSWORD=${RABBIT_PASSWORD}
+      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
+      - PAPER_WS=${PAPER_WS}
+      - NODE_ENV=production
+      - npm_config_loglevel=silent
+      - npm_config_update_notifier=false
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbit:
+        condition: service_healthy
+      exchange-connector:
+        condition: service_started
+
+  # All other main-app services use the same image (no build config)
+  bots-dca:
+    image: docker.gainium.io/gainium/main-app:1.0.0
+    restart: 'unless-stopped'
+    hostname: bots-dca
+    command: ["npm", "run", "bots:dca"]  # Override the default command
+    environment:
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
+      - MONGO_DB_NAME=${MONGO_DB_NAME}
+      - MONGO_DB_PORT=${MONGO_DB_PORT}
+      - MONGO_DB_HOST=${MONGO_DB_HOST}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - RABBIT_HOST=${RABBIT_HOST}
+      - RABBIT_USER=${RABBIT_USER}
+      - RABBIT_PASSWORD=${RABBIT_PASSWORD}
+      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
+      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL}
+      - NODE_ENV=production
+      - npm_config_loglevel=silent
+      - npm_config_update_notifier=false
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbit:
+        condition: service_healthy
+      exchange-connector:
+        condition: service_started
+      paper-trading:
+        condition: service_started
+      user-update-connector:
+        condition: service_started
+      api:
+        condition: service_started  # Ensure the image is built first
+
+  bots-grid:
+    image: docker.gainium.io/gainium/main-app:1.0.0
+    restart: 'unless-stopped'
+    hostname: bots-grid
+    command: ["npm", "run", "bots:grid"]  # Override the default command
+    environment:
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
+      - MONGO_DB_NAME=${MONGO_DB_NAME}
+      - MONGO_DB_PORT=${MONGO_DB_PORT}
+      - MONGO_DB_HOST=${MONGO_DB_HOST}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - RABBIT_HOST=${RABBIT_HOST}
+      - RABBIT_USER=${RABBIT_USER}
+      - RABBIT_PASSWORD=${RABBIT_PASSWORD}
+      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
+      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL}
+      - NODE_ENV=production
+      - npm_config_loglevel=silent
+      - npm_config_update_notifier=false
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbit:
+        condition: service_healthy
+      exchange-connector:
+        condition: service_started
+      paper-trading:
+        condition: service_started
+      user-update-connector:
+        condition: service_started
+      api:
+        condition: service_started  # Ensure the image is built first
+
+  bots-combo:
+    image: docker.gainium.io/gainium/main-app:1.0.0
+    restart: 'unless-stopped'
+    hostname: bots-combo
+    command: ["npm", "run", "bots:combo"]  # Override the default command
+    environment:
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
+      - MONGO_DB_NAME=${MONGO_DB_NAME}
+      - MONGO_DB_PORT=${MONGO_DB_PORT}
+      - MONGO_DB_HOST=${MONGO_DB_HOST}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - RABBIT_HOST=${RABBIT_HOST}
+      - RABBIT_USER=${RABBIT_USER}
+      - RABBIT_PASSWORD=${RABBIT_PASSWORD}
+      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
+      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL}
+      - NODE_ENV=production
+      - npm_config_loglevel=silent
+      - npm_config_update_notifier=false
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbit:
+        condition: service_healthy
+      exchange-connector:
+        condition: service_started
+      paper-trading:
+        condition: service_started
+      user-update-connector:
+        condition: service_started
+      api:
+        condition: service_started  # Ensure the image is built first
+
+  bots-hedge-combo:
+    image: docker.gainium.io/gainium/main-app:1.0.0
+    restart: 'unless-stopped'
+    hostname: bots-hedge-combo
+    command: ["npm", "run", "bots:hedge:combo"]  # Override the default command
+    environment:
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
+      - MONGO_DB_NAME=${MONGO_DB_NAME}
+      - MONGO_DB_PORT=${MONGO_DB_PORT}
+      - MONGO_DB_HOST=${MONGO_DB_HOST}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - RABBIT_HOST=${RABBIT_HOST}
+      - RABBIT_USER=${RABBIT_USER}
+      - RABBIT_PASSWORD=${RABBIT_PASSWORD}
+      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
+      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL}
+      - NODE_ENV=production
+      - npm_config_loglevel=silent
+      - npm_config_update_notifier=false
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbit:
+        condition: service_healthy
+      exchange-connector:
+        condition: service_started
+      paper-trading:
+        condition: service_started
+      user-update-connector:
+        condition: service_started
+      api:
+        condition: service_started  # Ensure the image is built first
+
+  bots-hedge-dca:
+    image: docker.gainium.io/gainium/main-app:1.0.0
+    restart: 'unless-stopped'
+    hostname: bots-hedge-dca
+    command: ["npm", "run", "bots:hedge:dca"]  # Override the default command
+    environment:
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
+      - MONGO_DB_NAME=${MONGO_DB_NAME}
+      - MONGO_DB_PORT=${MONGO_DB_PORT}
+      - MONGO_DB_HOST=${MONGO_DB_HOST}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - RABBIT_HOST=${RABBIT_HOST}
+      - RABBIT_USER=${RABBIT_USER}
+      - RABBIT_PASSWORD=${RABBIT_PASSWORD}
+      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
+      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL}
+      - NODE_ENV=production
+      - npm_config_loglevel=silent
+      - npm_config_update_notifier=false
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbit:
+        condition: service_healthy
+      exchange-connector:
+        condition: service_started
+      paper-trading:
+        condition: service_started
+      user-update-connector:
+        condition: service_started
+      api:
+        condition: service_started  # Ensure the image is built first
+
+  indicators:
+    image: docker.gainium.io/gainium/main-app:1.0.0
+    restart: 'unless-stopped'
+    hostname: indicators
+    command: ["npm", "run", "indicators"]  # Override the default command
+    environment:
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
+      - MONGO_DB_NAME=${MONGO_DB_NAME}
+      - MONGO_DB_PORT=${MONGO_DB_PORT}
+      - MONGO_DB_HOST=${MONGO_DB_HOST}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - RABBIT_HOST=${RABBIT_HOST}
+      - RABBIT_USER=${RABBIT_USER}
+      - RABBIT_PASSWORD=${RABBIT_PASSWORD}
+      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
+      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL}
+      - NODE_ENV=production
+      - npm_config_loglevel=silent
+      - npm_config_update_notifier=false
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbit:
+        condition: service_healthy
+      exchange-connector:
+        condition: service_started
+      paper-trading:
+        condition: service_started
+      api:
+        condition: service_started  # Ensure the image is built first
+
+  cron:
+    image: docker.gainium.io/gainium/main-app:1.0.0
+    restart: 'unless-stopped'
+    hostname: cron
+    command: ["npm", "run", "cron"]  # Override the default command
+    environment:
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
+      - MONGO_DB_NAME=${MONGO_DB_NAME}
+      - MONGO_DB_PORT=${MONGO_DB_PORT}
+      - MONGO_DB_HOST=${MONGO_DB_HOST}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - RABBIT_HOST=${RABBIT_HOST}
+      - RABBIT_USER=${RABBIT_USER}
+      - RABBIT_PASSWORD=${RABBIT_PASSWORD}
+      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
+      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL}
+      - NODE_ENV=production
+      - npm_config_loglevel=silent
+      - npm_config_update_notifier=false
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbit:
+        condition: service_healthy
+      exchange-connector:
+        condition: service_started
+      paper-trading:
+        condition: service_started
+      api:
+        condition: service_started  # Ensure the image is built first
+
+  stream:
+    image: docker.gainium.io/gainium/main-app:1.0.0
+    restart: 'unless-stopped'
+    hostname: stream
+    command: ["npm", "run", "stream"]  # Override the default command
+    ports:
+      - "${WS_PORT}:${WS_PORT}"
+    environment:
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
+      - MONGO_DB_NAME=${MONGO_DB_NAME}
+      - MONGO_DB_PORT=${MONGO_DB_PORT}
+      - MONGO_DB_HOST=${MONGO_DB_HOST}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - WS_PORT=${WS_PORT}
+      - NODE_ENV=production
+      - npm_config_loglevel=silent
+      - npm_config_update_notifier=false
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbit:
+        condition: service_healthy
+      api:
+        condition: service_started  # Ensure the image is built first
+
+  backtest:
+    image: docker.gainium.io/gainium/main-app:1.0.0
+    restart: 'unless-stopped'
+    hostname: backtest
+    command: ["npm", "run", "backtest"]  # Override the default command
+    environment:
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
+      - MONGO_DB_NAME=${MONGO_DB_NAME}
+      - MONGO_DB_PORT=${MONGO_DB_PORT}
+      - MONGO_DB_HOST=${MONGO_DB_HOST}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - RABBIT_HOST=${RABBIT_HOST}
+      - RABBIT_USER=${RABBIT_USER}
+      - RABBIT_PASSWORD=${RABBIT_PASSWORD}
+      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
+      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL}
+      - BACKTEST_PORT=${BACKTEST_PORT}
+      - MAIN_SERVICE_HOST=${MAIN_SERVICE_HOST}
+      - NODE_ENV=production
+      - npm_config_loglevel=silent
+      - npm_config_update_notifier=false
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbit:
+        condition: service_healthy
+      exchange-connector:
+        condition: service_started
+      api:
+        condition: service_started  # Ensure the image is built first
+
+  # Price connector uses the same websocket-connector image
+  price-connector:
+    image: docker.gainium.io/gainium/websocket-connector:1.0.0
+    restart: 'unless-stopped'
+    hostname: price-connector
+    command: ["npm", "run", "price"]  # Override the default command
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - RABBIT_HOST=${RABBIT_HOST}
+      - RABBIT_USER=${RABBIT_USER}
+      - RABBIT_PASSWORD=${RABBIT_PASSWORD}
+      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
+      - COINBASEKEY=${COINBASEKEY}
+      - COINBASESECRET=${COINBASESECRET}
+      - PRICEROLE=${PRICEROLE}
+      - NODE_ENV=production
+      - npm_config_loglevel=silent
+      - npm_config_update_notifier=false
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbit:
+        condition: service_healthy
+      exchange-connector:
+        condition: service_started
+      user-update-connector:
+        condition: service_started  # Ensure the image is built first
+
+  # Frontend Next.js application
+  frontend:
+    image: docker.gainium.io/gainium/frontend:1.0.0
+    command: ["node", "standalone/server.js"]
+    restart: 'unless-stopped'
+    hostname: frontend
+    ports:
+      - ${PORT}:${PORT}
+    environment:
+      - NODE_ENV=production
+      - PORT=${PORT}
+      - npm_config_loglevel=silent
+      - npm_config_update_notifier=false
+
+networks:
+  default:
+    driver: bridge
+volumes:
+  mongo:
+    driver: local
+  redis:
+    driver: local
+  rabbitmq:
+    driver: local
