@@ -24,7 +24,11 @@ Before starting, ensure you have:
 
 ### 1. Clone and Navigate
 ```bash
-cd /path/to/gainium/docker
+# Clone the repository
+git clone https://github.com/Gainium/docker-sh.git
+
+# Navigate into the cloned directory
+cd docker-sh
 ```
 
 ### 2. Setup Environment
