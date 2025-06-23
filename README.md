@@ -336,6 +336,30 @@ docker-compose exec mongo mongosh --version
 docker-compose exec redis redis-cli ping
 ```
 
+#### 6. Docker Registry Timeout Issues
+
+**Problem**: Docker registry connection timeouts during image pull
+```bash
+# Common error message:
+# "Error response from daemon: Get "https://docker.gainium.io/v2/gainium/main-app/manifests/sha256:..." context deadline exceeded"
+```
+
+**Solution**: 
+This is typically a network timeout issue when pulling images from the Docker registry. In most cases, simply retrying the command will resolve the issue:
+
+```bash
+# Retry pulling images
+docker-compose pull
+
+# If pull succeeds, restart the services
+docker-compose up -d
+
+# Alternative: Pull specific image that failed
+docker pull docker.gainium.io/gainium/main-app:1.0.0
+```
+
+**Note**: Registry timeouts are usually temporary network issues. If the problem persists, check your internet connection or try again after a few minutes.
+
 ### Debugging Steps
 
 1. **Check service status:**
