@@ -40,10 +40,10 @@ cp .env.sample .env
 nano .env  # or use your preferred editor
 ```
 
-### 3. Configure Required Variables
-Edit your `.env` file and set these **REQUIRED** variables:
+### 3. Configure Variables (Optional)
+Edit your `.env` file and configure variables as needed:
 ```bash
-# Coinbase API credentials (if using Coinbase)
+# Coinbase API credentials (only required if using Coinbase)
 COINBASEKEY=your_coinbase_api_key
 COINBASESECRET=your_coinbase_secret
 ```
@@ -64,12 +64,12 @@ docker-compose logs -f
 
 ## 🔧 Environment Configuration
 
-### Required Variables
+### Optional Variables
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `COINBASEKEY` | Coinbase Pro API Key | `your_api_key` |
-| `COINBASESECRET` | Coinbase Pro API Secret | `your_secret` |
+| Variable | Description | Example | Required |
+|----------|-------------|---------|----------|
+| `COINBASEKEY` | Coinbase Pro API Key | `your_api_key` | Only if using Coinbase |
+| `COINBASESECRET` | Coinbase Pro API Secret | `your_secret` | Only if using Coinbase |
 
 ### Database Configuration
 
