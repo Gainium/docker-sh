@@ -26,7 +26,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 120s  # MongoDB first start can take time
+      start_period: 45s  # MongoDB first start can take time
   
   redis:
     restart: 'unless-stopped'
@@ -71,10 +71,10 @@ services:
       interval: 20s
       timeout: 10s
       retries: 3
-      start_period: 60s
+      start_period: 30s
 
   exchange-connector:
-    image: docker.gainium.io/gainium/exchange-connector:1.0.0
+    image: docker.gainium.io/gainium/exchange-connector:1.0.1
     restart: 'unless-stopped'
     hostname: exchange-connector
     environment:
@@ -83,9 +83,15 @@ services:
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
   paper-trading:
-    image: docker.gainium.io/gainium/paper-trading:1.0.0
+    image: docker.gainium.io/gainium/paper-trading:1.0.1
     restart: 'unless-stopped'
     hostname: paper-trading
     environment:
@@ -101,15 +107,21 @@ services:
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     depends_on:
       mongo:
         condition: service_healthy
       redis:
         condition: service_healthy
       exchange-connector:
-        condition: service_started
+        condition: service_healthy
       price-connector:
-        condition: service_started
+        condition: service_healthy
 
   # =============================================================================
   # MAIN-APP SERVICES - All using the same shared image
@@ -117,7 +129,7 @@ services:
   
   # Main API service using versioned image from registry
   api:
-    image: docker.gainium.io/gainium/main-app:1.0.0
+    image: docker.gainium.io/gainium/main-app:1.0.1
     restart: 'unless-stopped'
     hostname: api
     command: ["npm", "run", "server"]  # Override the default command
@@ -144,6 +156,12 @@ services:
       - CORS_ORIGIN=${CORS_ORIGIN}
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${GRAPH_QL_PORT}/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     depends_on:
       mongo:
         condition: service_healthy
@@ -152,13 +170,13 @@ services:
       rabbit:
         condition: service_healthy
       exchange-connector:
-        condition: service_started
+        condition: service_healthy
       paper-trading:
-        condition: service_started
+        condition: service_healthy
 
   # Websocket connector using versioned image from registry
   user-update-connector:
-    image: docker.gainium.io/gainium/websocket-connector:1.0.0
+    image: docker.gainium.io/gainium/websocket-connector:1.0.1
     restart: 'unless-stopped'
     hostname: user-update-connector
     command: ["npm", "run", "main"]  # Override the default command
@@ -173,17 +191,23 @@ services:
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     depends_on:
       redis:
         condition: service_healthy
       rabbit:
         condition: service_healthy
       exchange-connector:
-        condition: service_started
+        condition: service_healthy
 
   # All other main-app services use the same image (no build config)
   bots-dca:
-    image: docker.gainium.io/gainium/main-app:1.0.0
+    image: docker.gainium.io/gainium/main-app:1.0.1
     restart: 'unless-stopped'
     hostname: bots-dca
     command: ["npm", "run", "bots:dca"]  # Override the default command
@@ -203,6 +227,12 @@ services:
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     depends_on:
       mongo:
         condition: service_healthy
@@ -211,16 +241,16 @@ services:
       rabbit:
         condition: service_healthy
       exchange-connector:
-        condition: service_started
+        condition: service_healthy
       paper-trading:
-        condition: service_started
+        condition: service_healthy
       user-update-connector:
-        condition: service_started
+        condition: service_healthy
       api:
-        condition: service_started  # Ensure the image is built first
+        condition: service_healthy 
 
   bots-grid:
-    image: docker.gainium.io/gainium/main-app:1.0.0
+    image: docker.gainium.io/gainium/main-app:1.0.1
     restart: 'unless-stopped'
     hostname: bots-grid
     command: ["npm", "run", "bots:grid"]  # Override the default command
@@ -240,6 +270,12 @@ services:
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     depends_on:
       mongo:
         condition: service_healthy
@@ -248,16 +284,16 @@ services:
       rabbit:
         condition: service_healthy
       exchange-connector:
-        condition: service_started
+        condition: service_healthy
       paper-trading:
-        condition: service_started
+        condition: service_healthy
       user-update-connector:
-        condition: service_started
+        condition: service_healthy
       api:
-        condition: service_started  # Ensure the image is built first
+        condition: service_healthy  
 
   bots-combo:
-    image: docker.gainium.io/gainium/main-app:1.0.0
+    image: docker.gainium.io/gainium/main-app:1.0.1
     restart: 'unless-stopped'
     hostname: bots-combo
     command: ["npm", "run", "bots:combo"]  # Override the default command
@@ -277,6 +313,12 @@ services:
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     depends_on:
       mongo:
         condition: service_healthy
@@ -285,16 +327,16 @@ services:
       rabbit:
         condition: service_healthy
       exchange-connector:
-        condition: service_started
+        condition: service_healthy
       paper-trading:
-        condition: service_started
+        condition: service_healthy
       user-update-connector:
-        condition: service_started
+        condition: service_healthy
       api:
-        condition: service_started  # Ensure the image is built first
+        condition: service_healthy  
 
   bots-hedge-combo:
-    image: docker.gainium.io/gainium/main-app:1.0.0
+    image: docker.gainium.io/gainium/main-app:1.0.1
     restart: 'unless-stopped'
     hostname: bots-hedge-combo
     command: ["npm", "run", "bots:hedge:combo"]  # Override the default command
@@ -314,6 +356,12 @@ services:
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     depends_on:
       mongo:
         condition: service_healthy
@@ -322,16 +370,16 @@ services:
       rabbit:
         condition: service_healthy
       exchange-connector:
-        condition: service_started
+        condition: service_healthy
       paper-trading:
-        condition: service_started
+        condition: service_healthy
       user-update-connector:
-        condition: service_started
+        condition: service_healthy
       api:
-        condition: service_started  # Ensure the image is built first
+        condition: service_healthy
 
   bots-hedge-dca:
-    image: docker.gainium.io/gainium/main-app:1.0.0
+    image: docker.gainium.io/gainium/main-app:1.0.1
     restart: 'unless-stopped'
     hostname: bots-hedge-dca
     command: ["npm", "run", "bots:hedge:dca"]  # Override the default command
@@ -351,6 +399,12 @@ services:
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     depends_on:
       mongo:
         condition: service_healthy
@@ -359,16 +413,16 @@ services:
       rabbit:
         condition: service_healthy
       exchange-connector:
-        condition: service_started
+        condition: service_healthy
       paper-trading:
-        condition: service_started
+        condition: service_healthy
       user-update-connector:
-        condition: service_started
+        condition: service_healthy
       api:
-        condition: service_started  # Ensure the image is built first
+        condition: service_healthy 
 
   indicators:
-    image: docker.gainium.io/gainium/main-app:1.0.0
+    image: docker.gainium.io/gainium/main-app:1.0.1
     restart: 'unless-stopped'
     hostname: indicators
     command: ["npm", "run", "indicators"]  # Override the default command
@@ -388,6 +442,12 @@ services:
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     depends_on:
       mongo:
         condition: service_healthy
@@ -396,14 +456,13 @@ services:
       rabbit:
         condition: service_healthy
       exchange-connector:
-        condition: service_started
+        condition: service_healthy
       paper-trading:
-        condition: service_started
+        condition: service_healthy
       api:
-        condition: service_started  # Ensure the image is built first
-
+        condition: service_healthy 
   cron:
-    image: docker.gainium.io/gainium/main-app:1.0.0
+    image: docker.gainium.io/gainium/main-app:1.0.1
     restart: 'unless-stopped'
     hostname: cron
     command: ["npm", "run", "cron"]  # Override the default command
@@ -423,6 +482,12 @@ services:
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     depends_on:
       mongo:
         condition: service_healthy
@@ -431,14 +496,14 @@ services:
       rabbit:
         condition: service_healthy
       exchange-connector:
-        condition: service_started
+        condition: service_healthy
       paper-trading:
-        condition: service_started
+        condition: service_healthy
       api:
-        condition: service_started  # Ensure the image is built first
+        condition: service_healthy 
 
   stream:
-    image: docker.gainium.io/gainium/main-app:1.0.0
+    image: docker.gainium.io/gainium/main-app:1.0.1
     restart: 'unless-stopped'
     hostname: stream
     command: ["npm", "run", "stream"]  # Override the default command
@@ -456,6 +521,12 @@ services:
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     depends_on:
       mongo:
         condition: service_healthy
@@ -464,10 +535,10 @@ services:
       rabbit:
         condition: service_healthy
       api:
-        condition: service_started  # Ensure the image is built first
+        condition: service_healthy 
 
   backtest:
-    image: docker.gainium.io/gainium/main-app:1.0.0
+    image: docker.gainium.io/gainium/main-app:1.0.1
     restart: 'unless-stopped'
     hostname: backtest
     command: ["npm", "run", "backtest"]  # Override the default command
@@ -489,6 +560,12 @@ services:
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${BACKTEST_PORT}/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     depends_on:
       mongo:
         condition: service_healthy
@@ -497,13 +574,13 @@ services:
       rabbit:
         condition: service_healthy
       exchange-connector:
-        condition: service_started
+        condition: service_healthy
       api:
-        condition: service_started  # Ensure the image is built first
+        condition: service_healthy  # Ensure the image is built first
 
   # Price connector uses the same websocket-connector image
   price-connector:
-    image: docker.gainium.io/gainium/websocket-connector:1.0.0
+    image: docker.gainium.io/gainium/websocket-connector:1.0.1
     restart: 'unless-stopped'
     hostname: price-connector
     command: ["npm", "run", "price"]  # Override the default command
@@ -520,19 +597,25 @@ services:
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     depends_on:
       redis:
         condition: service_healthy
       rabbit:
         condition: service_healthy
       exchange-connector:
-        condition: service_started
+        condition: service_healthy
       user-update-connector:
-        condition: service_started  # Ensure the image is built first
+        condition: service_healthy  # Ensure the image is built first
 
   # Frontend Next.js application
   frontend:
-    image: docker.gainium.io/gainium/frontend:1.0.0
+    image: docker.gainium.io/gainium/frontend:1.0.1
     command: ["node", "standalone/server.js"]
     restart: 'unless-stopped'
     hostname: frontend
@@ -543,6 +626,15 @@ services:
       - PORT=${PORT}
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${PORT} || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      api:
+        condition: service_healthy
 
 networks:
   default:
