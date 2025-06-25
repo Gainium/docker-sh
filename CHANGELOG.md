@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Frontend now supports runtime environment variables for server and WebSocket configuration
+- Runtime variables: `NEXT_PUBLIC_SERVER` (defaults to `http://localhost:7503`) and `NEXT_PUBLIC_WS` (defaults to `ws://localhost:7502`)
+- Environment variables can be set at container runtime for deployment to remote servers
+
 ### Changed
 - Updated all service images from version 1.0.0 to 1.0.1
 - Improved Docker service health checks and startup times
@@ -18,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Set appropriate start_period values (10s for most services, longer for API services)
 
 ### Technical Details
+- **Frontend Runtime Configuration:** Frontend applications now handle their configuration through runtime environment variables instead of build-time injection
+  - Default values: `NEXT_PUBLIC_SERVER=http://localhost:7503` and `NEXT_PUBLIC_WS=ws://localhost:7502`
+  - For remote deployment: Set these variables to your domain name or IP address
+  - **Important**: Container must be recreated when environment variables are changed
 - Health checks use wget to test `/health` endpoints on appropriate ports
 - All bot services now properly wait for their dependencies to be healthy before starting
 - Frontend service now depends on API being healthy rather than just started

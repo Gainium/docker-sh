@@ -615,8 +615,7 @@ services:
 
   # Frontend Next.js application
   frontend:
-    image: docker.gainium.io/gainium/frontend:1.0.1
-    command: ["node", "standalone/server.js"]
+    image: docker.gainium.io/gainium/frontend:1.0.3
     restart: 'unless-stopped'
     hostname: frontend
     ports:
@@ -624,10 +623,12 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=${PORT}
+      - NEXT_PUBLIC_SERVER=${NEXT_PUBLIC_SERVER}
+      - NEXT_PUBLIC_WS=${NEXT_PUBLIC_WS}
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${PORT} || exit 1"]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${PORT}/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3

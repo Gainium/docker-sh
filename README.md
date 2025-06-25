@@ -12,6 +12,7 @@
 - [Usage Commands](#usage-commands)
 - [Troubleshooting](#troubleshooting)
 - [Advanced Configuration](#advanced-configuration)
+- [**📋 Changelog**](CHANGELOG.md)
 
 ## 🔧 Prerequisites
 
@@ -116,6 +117,39 @@ PRICEROLE=all
 
 # For ticker monitoring only
 PRICEROLE=ticker
+```
+
+### Frontend Runtime Configuration
+
+The frontend service now supports runtime environment variables for server and WebSocket configuration:
+
+```bash
+# Default values (for local development)
+NEXT_PUBLIC_SERVER=http://localhost:7503
+NEXT_PUBLIC_WS=ws://localhost:7502
+
+# For remote deployment, set these to your domain/IP
+NEXT_PUBLIC_SERVER=https://api.yourdomain.com
+NEXT_PUBLIC_WS=wss://ws.yourdomain.com
+```
+
+**Important Notes:**
+- These variables are set at **container runtime**, not build time
+- Default values work for local development
+- For production deployment, update these values to match your server
+- **Container must be recreated** when environment variables are changed
+
+**Example Usage:**
+```bash
+# Local development (uses defaults)
+docker-compose up -d
+
+# Production deployment - update docker-compose.yml:
+# services:
+#   frontend:
+#     environment:
+#       - NEXT_PUBLIC_SERVER=https://api.mycompany.com
+#       - NEXT_PUBLIC_WS=wss://ws.mycompany.com
 ```
 
 
