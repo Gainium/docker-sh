@@ -7,12 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.1] - 2025-06-26
+
+### Changed
+- **CRITICAL FIX**: Updated exchange-connector from 1.0.1 to 1.0.2 - fixes critical issue with real exchange credential handling
+- Updated paper-trading from 1.0.1 to 1.0.2
+- Updated websocket-connector (user-update-connector and price-connector) from 1.0.1 to 1.0.2
+
 ### Added
 - Frontend now supports runtime environment variables for server and WebSocket configuration
 - Runtime variables: `NEXT_PUBLIC_SERVER` (defaults to `http://localhost:7503`) and `NEXT_PUBLIC_WS` (defaults to `ws://localhost:7502`)
 - Environment variables can be set at container runtime for deployment to remote servers
 
-### Changed
+### Previous Changes
 - Updated all service images from version 1.0.0 to 1.0.1
 - Improved Docker service health checks and startup times
   - Reduced MongoDB start_period from 120s to 45s
