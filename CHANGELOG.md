@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.2] - 2025-06-27
+
+### Security
+- Updated paper-trading, exchange-connector, and websocket-connector images to use newer packages and software to fix known vulnerabilities
+
 ## [0.0.1] - 2025-06-26
 
 ### Changed
