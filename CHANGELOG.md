@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+### Changed
+
+### Fixed
+
+### Security
+
+## [0.0.4] - 2025-06-30
+
+### Added
+- Persistent storage for **backtest** service:
+  - `backtest-candles:/app/loaded-data-candles` – stores loaded candle data
+  - `backtest-files:/app/user-files` – stores user backtest files
+- Defined `backtest-candles` and `backtest-files` volumes in the `volumes:` section of *docker-compose.yml*
+
+### Changed
+- Updated **exchange-connector** image from **1.0.3 ➜ 1.0.4** (amd64 support)
+- Updated **paper-trading** image from **1.0.3 ➜ 1.0.4** (amd64 support)
+- Updated **main-app** image from **1.0.1 ➜ 1.0.3** (api, bots-dca, bots-grid, bots-combo, bots-hedge-combo, bots-hedge-dca, indicators, cron, stream, backtest) – adds amd64 support
+- Updated **websocket-connector** image from **1.0.3 ➜ 1.0.4** (user-update-connector, price-connector) – adds amd64 support
+- Updated **frontend** image from **1.0.3 ➜ 1.0.5** – adds amd64 support
+
 ## [0.0.3] - 2025-06-30
 
 ### Fixed
