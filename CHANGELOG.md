@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.3] - 2025-06-30
+
+### Fixed
+- Added missing required environment variables to .env.sample file
+  - Added NEXT_PUBLIC_SERVER=http://localhost:7503
+  - Added NEXT_PUBLIC_WS=ws://localhost:7502
+
 ## [0.0.2] - 2025-06-27
 
 ### Security
