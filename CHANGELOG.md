@@ -15,6 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.0.6] - 2025-07-14
+
+### Changed
+- Updated **exchange-connector** image from **1.0.4 ➜ 1.0.5**: Fixed Kucoin futures problem
+- Updated **paper-trading** image from **1.0.4 ➜ 1.0.5**: Bumped dependencies
+- Updated **main-app** image from **1.0.5 ➜ 1.0.6**: Bumped dependencies, fixed database reference in deal monitor, updated indicator service connection and publish channel logic, enhanced hedge bot to use callback after successful start, fixed TP order size calculation in coinm futures for limit-based orders placed after base order is filled
+- Updated **websocket-connector** image from **1.0.5 ➜ 1.0.6**: Bumped dependencies, fixed Bybit ticker issue where only 500 tickers were being used to receive ticker updates
+
 ## [0.0.4] - 2025-06-30
 
 ### Added
