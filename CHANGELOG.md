@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.0.7] - 2025-07-15
+
+### Changed
+- Updated **main-app** image from **1.0.6 ➜ 1.0.7**: Added license key validation to user registration form, enhanced license key checking functionality with registration support, snapshot assets aggregation by exchange UUID, updated user registration GraphQL schema to include required license key field, modified license key validation to support both registration and existing user checks, fixed getGlobalVariablesByIds request
+- Updated **frontend** image from **1.0.6 ➜ 1.0.7**: Added license key field to registration form with validation, license key requirement for account creation, link to license key generation page in registration form, updated internal dependencies, fixed global variables table API reference issues, improved global variables table layout and responsiveness, fixed DataGrid API state access using proper exportState method, enhanced global variables table height and border styling, fixed coinm deals 0% profit issue, ensure global vars are disabled in combined settings
+
 ## [1.0.6] - 2025-07-14
 
 ### Changed
