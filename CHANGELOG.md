@@ -15,6 +15,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.0.8] - 2025-07-16
+
+### Added
+- Support for Bybit regional hosts (com, eu, nl, tr, kz, ge) across all services
+- Enhanced exchange factory to support Bybit host parameter selection
+- Frontend support for Bybit domain mapping and regional host configuration
+
+### Changed
+- Updated **main-app** image from **1.0.7 ➜ 1.0.8**: Added support for changing Bybit host configuration, enhanced exchange factory to support Bybit host parameter, updated bot exchange functionality to support Bybit host selection
+- Updated **exchange-connector** image from **1.0.5 ➜ 1.0.6**: Added support for Bybit regional hosts with new BybitHost enum, enhanced Bybit exchange implementation for host selection, updated exchange service and controller to handle Bybit host configuration
+- Updated **websocket-connector** image from **1.0.6 ➜ 1.0.7**: Added support for changing Bybit host with configurable WebSocket URLs, enhanced UserConnector for dynamic Bybit host selection
+- Updated **frontend** image from **1.0.7 ➜ 1.0.8**: Added support for Bybit domains including various regional hosts and mapping
+
+### Fixed
+- Undefined broker code in main app
+- Indicator connect timeout issues
+- Coinbase pagination in exchange connector
+
 ## [1.0.7] - 2025-07-15
 
 ### Changed
