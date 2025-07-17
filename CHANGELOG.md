@@ -15,6 +15,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.0.9] - 2025-07-17
+
+### Added
+- Increased core compatibilities
+
+### Changed
+- Updated **main-app** image from **1.0.8 ➜ 1.0.9**: Enhanced core compatibilities, improved bot dashboard stats for bigAccount configuration
+
+### Fixed
+- Fixed bot dashboard stats for bigAccount, prevent showing terminal bots in DCA bots stats
+
 ## [1.0.8] - 2025-07-16
 
 ### Added
