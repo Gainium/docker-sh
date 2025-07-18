@@ -15,6 +15,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.0.10] - 2025-07-18
+
+### Changed
+- Updated **main-app** image from **1.0.9 ➜ 1.0.10**: Backtester update
+- Updated **websocket-connector** image from **1.0.7 ➜ 1.0.8**: Bybit reconnect timeout set to 2s
+- Updated **frontend** image from **1.0.8 ➜ 1.0.9**: Fixed enter market timeout field, backtester package update
+
 ## [1.0.9] - 2025-07-17
 
 ### Added
