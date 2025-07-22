@@ -91,7 +91,7 @@ services:
       start_period: 10s
 
   paper-trading:
-    image: docker.gainium.io/gainium/paper-trading:1.0.5
+    image: docker.gainium.io/gainium/paper-trading:1.0.6
     restart: 'unless-stopped'
     hostname: paper-trading
     environment:
@@ -129,7 +129,7 @@ services:
   
   # Main API service using versioned image from registry
   api:
-    image: docker.gainium.io/gainium/main-app:1.0.10
+    image: docker.gainium.io/gainium/main-app:1.0.11
     restart: 'unless-stopped'
     hostname: api
     command: ["npm", "run", "server"]  # Override the default command
@@ -207,7 +207,7 @@ services:
 
   # All other main-app services use the same image (no build config)
   bots-dca:
-    image: docker.gainium.io/gainium/main-app:1.0.10
+    image: docker.gainium.io/gainium/main-app:1.0.11
     restart: 'unless-stopped'
     hostname: bots-dca
     command: ["npm", "run", "bots:dca"]  # Override the default command
@@ -250,7 +250,7 @@ services:
         condition: service_healthy 
 
   bots-grid:
-    image: docker.gainium.io/gainium/main-app:1.0.10
+    image: docker.gainium.io/gainium/main-app:1.0.11
     restart: 'unless-stopped'
     hostname: bots-grid
     command: ["npm", "run", "bots:grid"]  # Override the default command
@@ -293,7 +293,7 @@ services:
         condition: service_healthy  
 
   bots-combo:
-    image: docker.gainium.io/gainium/main-app:1.0.10
+    image: docker.gainium.io/gainium/main-app:1.0.11
     restart: 'unless-stopped'
     hostname: bots-combo
     command: ["npm", "run", "bots:combo"]  # Override the default command
@@ -336,7 +336,7 @@ services:
         condition: service_healthy  
 
   bots-hedge-combo:
-    image: docker.gainium.io/gainium/main-app:1.0.10
+    image: docker.gainium.io/gainium/main-app:1.0.11
     restart: 'unless-stopped'
     hostname: bots-hedge-combo
     command: ["npm", "run", "bots:hedge:combo"]  # Override the default command
@@ -379,7 +379,7 @@ services:
         condition: service_healthy
 
   bots-hedge-dca:
-    image: docker.gainium.io/gainium/main-app:1.0.10
+    image: docker.gainium.io/gainium/main-app:1.0.11
     restart: 'unless-stopped'
     hostname: bots-hedge-dca
     command: ["npm", "run", "bots:hedge:dca"]  # Override the default command
@@ -422,7 +422,7 @@ services:
         condition: service_healthy 
 
   indicators:
-    image: docker.gainium.io/gainium/main-app:1.0.10
+    image: docker.gainium.io/gainium/main-app:1.0.11
     restart: 'unless-stopped'
     hostname: indicators
     command: ["npm", "run", "indicators"]  # Override the default command
@@ -462,7 +462,7 @@ services:
       api:
         condition: service_healthy 
   cron:
-    image: docker.gainium.io/gainium/main-app:1.0.10
+    image: docker.gainium.io/gainium/main-app:1.0.11
     restart: 'unless-stopped'
     hostname: cron
     command: ["npm", "run", "cron"]  # Override the default command
@@ -503,7 +503,7 @@ services:
         condition: service_healthy 
 
   stream:
-    image: docker.gainium.io/gainium/main-app:1.0.10
+    image: docker.gainium.io/gainium/main-app:1.0.11
     restart: 'unless-stopped'
     hostname: stream
     command: ["npm", "run", "stream"]  # Override the default command
@@ -538,7 +538,7 @@ services:
         condition: service_healthy 
 
   backtest:
-    image: docker.gainium.io/gainium/main-app:1.0.10
+    image: docker.gainium.io/gainium/main-app:1.0.11
     restart: 'unless-stopped'
     hostname: backtest
     command: ["npm", "run", "backtest"]  # Override the default command
@@ -618,7 +618,7 @@ services:
 
   # Frontend Next.js application
   frontend:
-    image: docker.gainium.io/gainium/frontend:1.0.9
+    image: docker.gainium.io/gainium/frontend:1.0.10
     restart: 'unless-stopped'
     hostname: frontend
     command: ["npm", "run", "start"]  # Override the default command
