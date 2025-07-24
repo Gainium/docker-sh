@@ -18,7 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.12] - 2025-07-24
 ### Changed
 - Updated **websocket-connector** image from **1.0.8 ➜ 1.0.9**: Bybit fix reconnect after connection closed
-
+- Updated **exchange-connector** image from **1.0.6 ➜ 1.0.7**: Binance futures to drop long requests, Bump dependencies
+- Updated **main-app** image from **1.0.11 ➜ 1.0.12**: Retry 500 error, Bumped dependencies versions
+ 
 ## [1.0.11] - 2025-07-22
 ### Changed
 - Updated **frontend** image from **1.0.9 ➜ 1.0.10**: Fixed max number of open deals not shown, false positive disable save DCA bot
