@@ -618,7 +618,7 @@ services:
 
   # Frontend Next.js application
   frontend:
-    image: docker.gainium.io/gainium/frontend:1.0.10
+    image: docker.gainium.io/gainium/frontend:1.0.11
     restart: 'unless-stopped'
     hostname: frontend
     command: ["npm", "run", "start"]  # Override the default command

@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated **websocket-connector** image from **1.0.8 ➜ 1.0.9**: Bybit fix reconnect after connection closed
 - Updated **exchange-connector** image from **1.0.6 ➜ 1.0.7**: Binance futures to drop long requests, Bump dependencies
 - Updated **main-app** image from **1.0.11 ➜ 1.0.12**: Retry 500 error, Bumped dependencies versions
+- Updated **frontend** image from **1.0.10 ➜ 1.0.11**: Fixed edit global vars in the bot of the same var value
  
 ## [1.0.11] - 2025-07-22
 ### Changed
