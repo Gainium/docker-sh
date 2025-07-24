@@ -176,7 +176,7 @@ services:
 
   # Websocket connector using versioned image from registry
   user-update-connector:
-    image: docker.gainium.io/gainium/websocket-connector:1.0.8
+    image: docker.gainium.io/gainium/websocket-connector:1.0.9
     restart: 'unless-stopped'
     hostname: user-update-connector
     command: ["npm", "run", "main"]  # Override the default command
@@ -583,7 +583,7 @@ services:
 
   # Price connector uses the same websocket-connector image
   price-connector:
-    image: docker.gainium.io/gainium/websocket-connector:1.0.8
+    image: docker.gainium.io/gainium/websocket-connector:1.0.9
     restart: 'unless-stopped'
     hostname: price-connector
     command: ["npm", "run", "price"]  # Override the default command
