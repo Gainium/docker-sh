@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.0.14] - 2025-08-05
+### Changed
+- Updated **main-app** image from **1.0.13 ➜ 1.0.15**: Updates in logic
+- Updated **websocket-connector** image from **1.0.9 ➜ 1.0.10**: Binance candle reconnect fix
+
 ## [1.0.13] - 2025-07-28
 ### Changed
 - Updated **main-app** image from **1.0.12 ➜ 1.0.13**: Fixed static price filter in multi coin bots
