@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.0.15] - 2025-08-28
+### Changed
+- Updated **paper-trading** image from **1.0.6 ➜ 1.0.7**: Fixed type error in addSymbols method
+- Updated **exchange-connector** image from **1.0.7 ➜ 1.0.11**: Added Bybit pre launch pairs, fixed Coinbase type error, Kucoin handle error in change margin type method, Binance logs reduced
+- Updated **main-app** image from **1.0.15 ➜ 1.1.3**: Updated log level logic, Reset stats when corresponding global variable changed, Optmization of get hedge bot deals stats, Minimum dynamic price deviation, Increase parallel listeners in bot, Calcualte deal profit if deal canceled, but TP order is filled; Fixed Bot not able to be closed if catch error deal not found
+
 ## [1.0.14] - 2025-08-05
 ### Changed
 - Updated **main-app** image from **1.0.13 ➜ 1.0.15**: Updates in logic
