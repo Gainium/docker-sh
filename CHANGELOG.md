@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.0.16] - 2025-08-29
+### Changed
+- Updated **exchange-connector** image from **1.0.11 ➜ 1.0.12**: Bybit do not retry 403 error
+
 ## [1.0.15] - 2025-08-28
 ### Changed
 - Updated **paper-trading** image from **1.0.6 ➜ 1.0.7**: Fixed type error in addSymbols method
