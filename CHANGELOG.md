@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.0.17] - 2025-09-01
+### Changed
+- Updated **exchange-connector** image from **1.0.12 ➜ 1.0.13**: Bitget futures balance calculation
+
 ## [1.0.16] - 2025-08-29
 ### Changed
 - Updated **exchange-connector** image from **1.0.11 ➜ 1.0.12**: Bybit do not retry 403 error
