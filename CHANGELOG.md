@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.0.18] - 2025-09-17
+### Changed
+- Updated **websocket-connector** image from **1.0.10 ➜ 1.0.12**: Added list of supported exchange
+
 ## [1.0.17] - 2025-09-01
 ### Changed
 - Updated **exchange-connector** image from **1.0.12 ➜ 1.0.13**: Bitget futures balance calculation

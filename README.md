@@ -71,6 +71,7 @@ docker-compose logs -f
 |----------|-------------|---------|----------|
 | `COINBASEKEY` | Coinbase Pro API Key | `your_api_key` | Only if using Coinbase |
 | `COINBASESECRET` | Coinbase Pro API Secret | `your_secret` | Only if using Coinbase |
+| `PRICE_CONNECTOR_EXCHANGES` | Comma-separated list of exchanges for websocket price connector | `binance,kucoin,bybit` | No (connects to all if not set) |
 
 ### Database Configuration
 
@@ -118,6 +119,41 @@ PRICEROLE=all
 # For ticker monitoring only
 PRICEROLE=ticker
 ```
+
+### 🔗 PRICE_CONNECTOR_EXCHANGES Configuration
+
+The `PRICE_CONNECTOR_EXCHANGES` environment variable allows you to control which exchanges the websocket price connector connects to for receiving price data.
+
+**Supported Exchanges:**
+- `binance` - Binance exchange
+- `binanceus` - Binance US exchange  
+- `kucoin` - KuCoin exchange
+- `bybit` - Bybit exchange
+- `okx` - OKX exchange
+- `bitget` - Bitget exchange
+- `coinbase` - Coinbase exchange
+
+**Configuration Options:**
+```bash
+# Connect to all exchanges (default behavior)
+# Leave variable unset or empty
+PRICE_CONNECTOR_EXCHANGES=
+
+# Connect to specific exchanges only
+PRICE_CONNECTOR_EXCHANGES=binance,kucoin,bybit
+
+# Connect to a single exchange
+PRICE_CONNECTOR_EXCHANGES=binance
+
+# Connect to multiple exchanges
+PRICE_CONNECTOR_EXCHANGES=binance,binanceus,coinbase,okx
+```
+
+**Important Notes:**
+- If `PRICE_CONNECTOR_EXCHANGES` is not set or empty, the connector will connect to **all supported exchanges**
+- Use comma-separated values without spaces between exchange names
+- Invalid exchange names will be ignored
+- This setting affects only the websocket price connector service
 
 ### Frontend Runtime Configuration
 
