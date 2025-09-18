@@ -7,7 +7,7 @@ services:
   mongo:
     platform: linux/amd64
     restart: 'unless-stopped'
-    image: 'bitnami/mongodb:latest'
+    image: 'bitnamilegacy/mongodb:latest'
     hostname: localhost
     environment:
       - MONGODB_ROOT_USER=root
@@ -30,7 +30,7 @@ services:
   
   redis:
     restart: 'unless-stopped'
-    image: 'bitnami/redis:latest'
+    image: 'bitnamilegacy/redis:latest'
     hostname: localhost
     environment:
       - REDIS_AOF_ENABLED=no
@@ -53,7 +53,7 @@ services:
   
   rabbit:
     restart: 'unless-stopped'
-    image: 'bitnami/rabbitmq:latest'
+    image: 'bitnamilegacy/rabbitmq:latest'
     hostname: localhost
     environment:
       - RABBITMQ_SECURE_PASSWORD=yes
