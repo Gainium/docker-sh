@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.0.20] - 2025-09-19
+### Changed
+- Price connector environment variables
+
 ## [1.0.19] - 2025-09-18
 ### Changed
 - Update of bitnami images: bitnami -> bitnamilegacy 
