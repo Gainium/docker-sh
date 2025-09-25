@@ -15,6 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.1.0] - 2025-09-25
+### Changed
+- Updated **exchange-connector** image from **1.0.13 ➜ 1.1.0**: Hyperliquid integration
+- Updated **paper-trading** image from **1.0.7 ➜ 1.1.0**: Hyperliquid integration
+- Updated **main-app** image from **1.1.3 ➜ 1.3.0**: Bug fixes, Hedge backtesting, Hyperliquid integration
+- Updated **websocket-connector** image from **1.0.12 ➜ 1.1.0**: Hyperliquid integration
+- Updated **frontend** image from **1.0.11 ➜ 1.1.0**: Bug fixes, Hedge backtesting, Hyperliquid integration
+
 ## [1.0.20] - 2025-09-19
 ### Changed
 - Price connector environment variables
