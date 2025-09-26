@@ -15,6 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.1.1] - 2025-09-26
+### Changed
+- Hyperliquid fixes:
+- Updated **websocket-connector** image from **1.1.0 ➜ 1.1.1**: user stream logic update
+- Updated **exchange-connector** image from **1.1.0 ➜ 1.1.1**: order place logic update
+- Updated **main-app** image from **1.3.0 ➜ 1.3.1**: set leverage/margin logic update
+- Updated **frontend** image from **1.1.0 ➜ 1.1.1**: how to connect hyperliquid account
+
 ## [1.1.0] - 2025-09-25
 ### Changed
 - Updated **exchange-connector** image from **1.0.13 ➜ 1.1.0**: Hyperliquid integration
