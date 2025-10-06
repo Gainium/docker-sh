@@ -15,6 +15,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.1.4] - 2025-10-06
+### Changed
+- Updated **frontend** image from **1.1.1 ➜ 1.1.2**. Fixed: Hyperliquid backtest data. Added: Market TP order
+- Updated **exchange-connector** image from **1.1.3 ➜ 1.1.4**. Fixed: Hyperliquid get order retry
+- Updated **paper-trading** image from **1.1.1 ➜ 1.1.2**. Fixed: x1 leverage short position liquidation price
+- Updated **main-app** image from **1.3.2 ➜ 1.3.6**. Fixed: Market structure price actions, Reset not enough balance status, Hyperliquid spot order price precision. Added: Market TP order
+
 ## [1.1.3] - 2025-09-29
 ### Changed
 - Hyperliquid fixes:
