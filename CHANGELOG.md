@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.1.5] - 2025-10-07
+### Changed
+- Updated **exchange-connector** image from **1.1.4 ➜ 1.1.5**. Changed: Hyperliquid price precision logic
+- Updated **main-app** image from **1.3.6 ➜ 1.3.8**. Changed: Remove delisted pairs from the bot. Minor updates of inticator service logic
+
 ## [1.1.4] - 2025-10-06
 ### Changed
 - Updated **frontend** image from **1.1.1 ➜ 1.1.2**. Fixed: Hyperliquid backtest data. Added: Market TP order
