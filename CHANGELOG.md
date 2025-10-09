@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.2.0] - 2025-10-09
+### Changed
+- Updated **frontend** image from **1.1.2 ➜ 1.2.0**. Added: Order Blocks & Fair Value Gaps (FVG only). Fixed: Coinbase candles update timer, Hedge bot create with TP market order. 
+- Updated **main-app** image from **1.3.8 ➜ 1.4.1**. Added: Order Blocks & Fair Value Gaps (FVG only). Fixed: GQL input schema
+
 ## [1.1.5] - 2025-10-07
 ### Changed
 - Updated **exchange-connector** image from **1.1.4 ➜ 1.1.5**. Changed: Hyperliquid price precision logic
