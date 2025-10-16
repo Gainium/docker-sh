@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.2.2] - 2025-10-16
+### Changed
+- Updated **main-app** image from **1.4.2 ➜ 1.4.6**. Updated: Reduced unknown order retry count, Debug log for indicators, NOB logic for bot. Fixed: Clone combo bot input body, Server url in swagger. 
+- Updated **paper-trading** image from **1.1.2 ➜ 1.1.4**. Fixed: Liquidation error, Subscribe to tickers. Channel name.
+- Updated **exchange-connector** image from **1.1.5 ➜ 1.1.6**. Updated: Bitget limiter logic.
+
 ## [1.2.1] - 2025-10-10
 ### Changed
 - Updated **frontend** image from **1.2.0 ➜ 1.2.1**. Fixed: Duplicate Hedge bot. 
