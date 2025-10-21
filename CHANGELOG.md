@@ -15,6 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.2.3] - 2025-10-21
+### Changed
+- Updated **websocket-connector** image from **1.1.2 ➜ 1.1.3**. Fixed: Paper WS url.
+- Updated **exchange-connector** image from **1.1.6 ➜ 1.1.8**. Updated: Coinbase retry count, Fixed: Bitget USDC product type.
+- Updated **paper-trading** image from **1.1.4 ➜ 1.1.5**. Fixed: Type error.
+- Updated **frontend** image from **1.2.1 ➜ 1.2.2**. Fixed: Duplicate Hedge bot. 
+- Updated **main-app** image from **1.4.6 ➜ 1.4.13**. Updated: Backtester update, Mongo delete method, Hyperliquid USD rates. Added: Step parameter to update bot/deal API. Fixed: NOB order id, Move deal to terminal of multicoin bot, Reset trailing mode. 
+
 ## [1.2.2] - 2025-10-16
 ### Changed
 - Updated **main-app** image from **1.4.2 ➜ 1.4.6**. Updated: Reduced unknown order retry count, Debug log for indicators, NOB logic for bot. Fixed: Clone combo bot input body, Server url in swagger. 
