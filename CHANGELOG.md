@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.2.4] - 2025-10-24
+### Changed
+- Updated **exchange-connector** image from **1.1.8 ➜ 1.1.9**. Updated: Bybit coinm quote workaround. 
+- Updated **main-app** image from **1.4.13 ➜ 1.4.14**. Fixed: Market TP wrong trigger when having SL and multicoin.  
+
 ## [1.2.3] - 2025-10-21
 ### Changed
 - Updated **websocket-connector** image from **1.1.2 ➜ 1.1.3**. Fixed: Paper WS url.
