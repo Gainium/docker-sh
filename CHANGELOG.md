@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.2.5] - 2025-10-27
+### Changed
+- Updated **exchange-connector** image from **1.1.9 ➜ 1.1.10**. Fixed: Hyperliquid futures balance.  
+- Updated **main-app** image from **1.4.14 ➜ 1.4.16**. Fixed: Share Grid backtest input, Hyperliquid price precision. 
+
 ## [1.2.4] - 2025-10-24
 ### Changed
 - Updated **exchange-connector** image from **1.1.8 ➜ 1.1.9**. Updated: Bybit coinm quote workaround. 
