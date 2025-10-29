@@ -15,6 +15,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.2.5] - 2025-10-29
+### Changed
+- Updated **exchange-connector** image from **1.1.10 ➜ 1.1.11**. Changed: Hyperliquid retry get order amount.  
+- Updated **main-app** image from **1.4.16 ➜ 1.4.19**. Fixed: Prevent duplicate transaction error, Deals filter in reset user method. Added: Close old start deals.  
+- Updated **websocket-connector** image from **1.1.3 ➜ 1.1.4**. Changed: Bitget unique message id.
+- Updated **frontend** image from **1.2.2 ➜ 1.2.3**. Fixed: Fair Value Gaps default values, Changing TP from indicators to other leave indicator, Hedge bot page display problems, Profit on dashboard in a different timezone. 
+
 ## [1.2.5] - 2025-10-27
 ### Changed
 - Updated **exchange-connector** image from **1.1.9 ➜ 1.1.10**. Fixed: Hyperliquid futures balance.  
