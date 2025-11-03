@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.2.6] - 2025-11-03
+### Changed
+- Updated **exchange-connector** image from **1.1.11 ➜ 1.1.12**. Added: Hyperliquid significant figures check.  
+- Updated **main-app** image from **1.4.19 ➜ 1.4.21**. Fixed: Reset account with hedge bots, Handle worker terminate.  
+
 ## [1.2.5] - 2025-10-29
 ### Changed
 - Updated **exchange-connector** image from **1.1.10 ➜ 1.1.11**. Changed: Hyperliquid retry get order amount.  
