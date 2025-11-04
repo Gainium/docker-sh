@@ -15,6 +15,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.3.0] - 2025-11-07
+### Changed
+- Updated **main-app** image from **1.4.22 ➜ 1.5.2**. Fixed: Max deal levels, Hedge Combo bot TP/SL base on value ignored; Added: Fixed Stop Loss in Risk Reward; Changed: Hyperliquid max candles. Hide hyperliquid in indicators. 
+- Updated **exchange-connector** image from **1.1.12 ➜ 1.1.13**. Fixed: Hyperliquid queue.  
+- Updated **websocket-connector** image from **1.1.4 ➜ 1.1.5**. Changed: Hyperliquid candle connect.
+- Updated **frontend** image from **1.2.3 ➜ 1.3.0**. Added: Hyperliquid Web3 Auth, Risk:Reward with fixed stop loss, Expected absolute profit/loss in settings; Fixed: Hyperliquid spot chart stuck, Edit deal with RR in terminal, Paper hyperliuid add USDC asset.  
+
+## [1.2.7] - 2025-11-04
+### Changed
+- Updated **main-app** image from **1.4.21 ➜ 1.4.22**. Fixed: Clone combo bot unsupported fields.  
+
 ## [1.2.6] - 2025-11-03
 ### Changed
 - Updated **exchange-connector** image from **1.1.11 ➜ 1.1.12**. Added: Hyperliquid significant figures check.  
