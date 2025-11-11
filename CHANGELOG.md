@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.4.0] - 2025-11-11
+### Changed
+- Updated **main-app** image from **1.5.2 ➜ 1.6.1**. Fixed: Use fixed base price in RR with fixed SL; Changed: Soft reset live account, Request candles for indicators through main thread; Added: Skip balance check option for Grid bots, Hyperliquid sub-account support. 
+- Updated **exchange-connector** image from **1.1.13 ➜ 1.1.16**. Added: Hyperliquid sub-account support; Fixed: Hyperliquid sub-account requests without vault address, Bitget get candles request.  
+- Updated **frontend** image from **1.3.0 ➜ 1.4.0**. Added: Hyperliquid Sub-account support, Skip balance check for grid bot, Fixed entry price in terminal deal with RR and fixed SL; Fixed: Paper Top-up asset, SL calculation in terminal deal edit component.  
+
 ## [1.3.0] - 2025-11-07
 ### Changed
 - Updated **main-app** image from **1.4.22 ➜ 1.5.2**. Fixed: Max deal levels, Hedge Combo bot TP/SL base on value ignored; Added: Fixed Stop Loss in Risk Reward; Changed: Hyperliquid max candles. Hide hyperliquid in indicators. 
