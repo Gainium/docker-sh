@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.4.1] - 2025-11-11
+### Changed
+- Updated **main-app** image from **1.6.1 ➜ 1.6.6**. Fixed: Market TP order triggered at wrong price when having multiple deals, Hedge bot not found when stopped, API signature not valid with empty body; Changed: Demo user, Decorators apply logic in bot helpers. 
+- Updated **websocket-connector** image from **1.1.5 ➜ 1.1.6**. Changed: Hyperliquid orders processing.  
+
 ## [1.4.0] - 2025-11-11
 ### Changed
 - Updated **main-app** image from **1.5.2 ➜ 1.6.1**. Fixed: Use fixed base price in RR with fixed SL; Changed: Soft reset live account, Request candles for indicators through main thread; Added: Skip balance check option for Grid bots, Hyperliquid sub-account support. 
