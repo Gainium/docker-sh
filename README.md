@@ -327,6 +327,25 @@ docker images | grep docker.gainium.io | awk '{print $3}' | xargs docker rmi
 docker-compose down -v --rmi all
 ```
 
+### Password Reset
+
+To reset a user's password from the command line:
+
+```bash
+# Using helper script (recommended)
+./resetPassword.sh <username> <newPassword>
+
+# Or using Docker Compose directly
+docker-compose run --rm cli-runner npm run cli:reset-password -- <username> <newPassword>
+```
+
+**Password Requirements:** Minimum 6 characters with uppercase, lowercase, and a digit.
+
+**Example:**
+```bash
+./resetPassword.sh admin MyNewPass123
+```
+
 ## 🔍 Troubleshooting
 
 ### Common Issues

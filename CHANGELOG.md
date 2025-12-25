@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.5.0] - 2025-12-25
+### Added
+- Password reset script
+### Changed
+- Updated **main-app** image from **1.6.6 ➜ 1.7.0**. Fixed: Profit by user/bot start date, Timezone offset, Skip balance check in move deal to terminal, AVP issue with group and section indicator logic, Check TP level wrong price; Changed: Improve random pair filtering, Combo breakeven calculation, Packages update; Added: Password reset
+
 ## [1.4.1] - 2025-11-11
 ### Changed
 - Updated **main-app** image from **1.6.1 ➜ 1.6.6**. Fixed: Market TP order triggered at wrong price when having multiple deals, Hedge bot not found when stopped, API signature not valid with empty body; Changed: Demo user, Decorators apply logic in bot helpers. 
