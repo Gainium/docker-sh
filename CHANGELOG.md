@@ -15,6 +15,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.6.0] - 2026-01-28
+### Changed
+- Updated **frontend** image from **1.4.0 ➜ 1.5.0**. Fixed: Hedge bot page constantly rerender, Hedge table not showing bots, SL deal stop logic display, Hedge backtest render issue, Orphaned indicators after update, Big account hedge bot view; Changed: Backtester update, Hide Bybit nl, Supported resolution, Select only visible rows; Added: Separate max deal per over and under when using dynamic price filter, DCA by market.
+- Updated **websocket-connector** image from **1.1.6 ➜ 1.2.0**. Fixed: Hyperliquid max order size; Added: Support Binance ED25519 keys, Websocket API for Spot user data streams. 
+- Updated **main-app** image from **1.7.4 ➜ 1.10.2**. Fixed: Multi TP by Market caught duplicate order error, Multi SL not fired, TP section settings mixed up, Missed orders in search by status, Hyperliquid reposition partially filled order; Changed: GQL schema, Bot id in bot live stats; Added: DCA By Market, Separate max deal limits when using dynamic price filter over and under, Bot live stats. 
+- Updated **exchange-connector** image from **1.1.19 ➜ 1.2.0**. Changed: Handle Binance Request throttled by system-level protection error, Workaround for Bybit EU pairs; Added: Support Binance ED25519 keys.
+
 ## [1.5.1] - 2026-01-06
 ### Changed
 - Updated **main-app** image from **1.7.0 ➜ 1.7.4**. Fixed: Overwritten deal orders when updating deal, Missed indicator events if the same indicator is used in different sections; Changed: Exchange error dictionary, Broker codes with zone. 
