@@ -541,7 +541,8 @@ services:
     image: docker.gainium.io/gainium/main-app:1.14.10
     restart: 'unless-stopped'
     hostname: backtest
-    command: ["npm", "run", "backtest"]  # Override the default command
+    user: "0:0"
+    command: ["sh", "-c", "chown -R 1001:1001 /app/loaded-data-candles /app/user-files && npm run backtest"]  # Override the default command
     environment:
       - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
       - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}

@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.7.1] - 2026-04-09
+- Updated **backtest** start script to fix volume ownership.
+
 ## [1.7.0] - 2026-03-13
 - Updated **exchange-connector** image from **1.2.0 ➜ 1.3.2**. Changed: Added OKX host app.okx.com, Drop Kraken Coinm support; Fixed: Kraken Coinm base asset precision, Get Coinm candles request; Added: Kraken.
 - Updated **paper-trading** image from **1.1.5 ➜ 1.2.0**. Fixed: Hyperliquid ticker processing issue; Added: Kraken.
