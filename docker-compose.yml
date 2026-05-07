@@ -91,7 +91,7 @@ services:
       start_period: 10s
 
   paper-trading:
-    image: docker.gainium.io/gainium/paper-trading:1.2.0
+    image: docker.gainium.io/gainium/paper-trading:1.2.3
     restart: 'unless-stopped'
     hostname: paper-trading
     environment:

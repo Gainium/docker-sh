@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [1.7.2] - 2026-05-07
+- Updated **paper-trading** image from **1.2.0 ➜ 1.2.3**. Changed: Remove hyperliquid name mapping,Connection string; Fixed: Crash on start
+
 ## [1.7.1] - 2026-04-09
 - Updated **backtest** start script to fix volume ownership.
 
