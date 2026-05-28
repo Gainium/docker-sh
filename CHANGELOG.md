@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [2.1.0] - 2026-05-28
+### Changed
+- Updated **frontend** image from **2.4.2 ➜ 2.5.1**. Fixed: ComboBots stats, GridBots stats, DCA bot stats, Trading page stats aggregator, Trading page Total Profit no longer drops Grid bots' unrealized PnL, CoinSelect, DCA bot view dialog; Changed: VariableChip, EmptyState placement, DrawerDealsTable, Grid bot strategy settings; Added: Unified bot-list KPI strip, Hedge DCA / Hedge Combo bot list pages, IndicatorConfigurationModal / InlineIndicatorConfig, DetailDrawer body.
+- Updated **main-app** image from **1.17.9 ➜ 1.17.10**. Changed: Enforce profitCurrency and orderFixedIn on server side for grid bot.
+
 ## [2.0.0] - 2026-05-27
 ### Changed
 - **BREAKING**: Updated **frontend** image from **1.6.0 ➜ 2.4.2**. The image is now a Vite SPA served by nginx (was Next.js). If you've copied the previous compose, drop the `command:` override, the `NEXT_PUBLIC_SERVER` / `NEXT_PUBLIC_WS` env vars, and the `npm_config_*` flags — none apply to nginx. The `PORT` env var and `${PORT}:${PORT}` ports binding still work identically; nginx templates `${PORT}` into its config at start.
