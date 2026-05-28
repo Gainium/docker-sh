@@ -1,1 +1,4 @@
 .env
+# Generated/maintained by admin-sh's upgrade flow. Always local to the
+# deployment.
+.versions.env

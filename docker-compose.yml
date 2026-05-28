@@ -74,12 +74,15 @@ services:
       start_period: 30s
 
   exchange-connector:
-    image: docker.gainium.io/gainium/exchange-connector:1.4.3
+    image: docker.gainium.io/gainium/exchange-connector:${EXCHANGE_CONNECTOR_VERSION:-1.5.0}
     restart: 'unless-stopped'
     hostname: exchange-connector
     environment:
       - COINBASEKEY=${COINBASEKEY}
       - COINBASESECRET=${COINBASESECRET}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - ADMIN_CONFIG_ENABLED=${ADMIN_CONFIG_ENABLED:-true}
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
@@ -89,9 +92,12 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+    depends_on:
+      redis:
+        condition: service_healthy
 
   paper-trading:
-    image: docker.gainium.io/gainium/paper-trading:1.2.3
+    image: docker.gainium.io/gainium/paper-trading:${PAPER_TRADING_VERSION:-1.2.3}
     restart: 'unless-stopped'
     hostname: paper-trading
     environment:
@@ -129,7 +135,7 @@ services:
   
   # Main API service using versioned image from registry
   api:
-    image: docker.gainium.io/gainium/main-app:1.17.10
+    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.18.0}
     restart: 'unless-stopped'
     hostname: api
     command: ["npm", "run", "server"]  # Override the default command
@@ -154,6 +160,7 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - NODE_ENV=production
       - CORS_ORIGIN=${CORS_ORIGIN}
+      - ADMIN_CONFIG_ENABLED=${ADMIN_CONFIG_ENABLED:-true}
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
     healthcheck:
@@ -176,7 +183,7 @@ services:
 
   # Websocket connector using versioned image from registry
   user-update-connector:
-    image: docker.gainium.io/gainium/websocket-connector:1.7.1
+    image: docker.gainium.io/gainium/websocket-connector:${WEBSOCKET_CONNECTOR_VERSION:-1.8.0}
     restart: 'unless-stopped'
     hostname: user-update-connector
     command: ["npm", "run", "main"]  # Override the default command
@@ -188,6 +195,7 @@ services:
       - RABBIT_PASSWORD=${RABBIT_PASSWORD}
       - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
       - PAPER_WS=${PAPER_WS}
+      - ADMIN_CONFIG_ENABLED=${ADMIN_CONFIG_ENABLED:-true}
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
@@ -207,7 +215,7 @@ services:
 
   # All other main-app services use the same image (no build config)
   bots-dca:
-    image: docker.gainium.io/gainium/main-app:1.17.10
+    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.18.0}
     restart: 'unless-stopped'
     hostname: bots-dca
     command: ["npm", "run", "bots:dca"]  # Override the default command
@@ -250,7 +258,7 @@ services:
         condition: service_healthy 
 
   bots-grid:
-    image: docker.gainium.io/gainium/main-app:1.17.10
+    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.18.0}
     restart: 'unless-stopped'
     hostname: bots-grid
     command: ["npm", "run", "bots:grid"]  # Override the default command
@@ -293,7 +301,7 @@ services:
         condition: service_healthy  
 
   bots-combo:
-    image: docker.gainium.io/gainium/main-app:1.17.10
+    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.18.0}
     restart: 'unless-stopped'
     hostname: bots-combo
     command: ["npm", "run", "bots:combo"]  # Override the default command
@@ -336,7 +344,7 @@ services:
         condition: service_healthy  
 
   bots-hedge-combo:
-    image: docker.gainium.io/gainium/main-app:1.17.10
+    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.18.0}
     restart: 'unless-stopped'
     hostname: bots-hedge-combo
     command: ["npm", "run", "bots:hedge:combo"]  # Override the default command
@@ -379,7 +387,7 @@ services:
         condition: service_healthy
 
   bots-hedge-dca:
-    image: docker.gainium.io/gainium/main-app:1.17.10
+    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.18.0}
     restart: 'unless-stopped'
     hostname: bots-hedge-dca
     command: ["npm", "run", "bots:hedge:dca"]  # Override the default command
@@ -422,7 +430,7 @@ services:
         condition: service_healthy 
 
   indicators:
-    image: docker.gainium.io/gainium/main-app:1.17.10
+    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.18.0}
     restart: 'unless-stopped'
     hostname: indicators
     command: ["npm", "run", "indicators"]  # Override the default command
@@ -462,7 +470,7 @@ services:
       api:
         condition: service_healthy 
   cron:
-    image: docker.gainium.io/gainium/main-app:1.17.10
+    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.18.0}
     restart: 'unless-stopped'
     hostname: cron
     command: ["npm", "run", "cron"]  # Override the default command
@@ -503,7 +511,7 @@ services:
         condition: service_healthy 
 
   stream:
-    image: docker.gainium.io/gainium/main-app:1.17.10
+    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.18.0}
     restart: 'unless-stopped'
     hostname: stream
     command: ["npm", "run", "stream"]  # Override the default command
@@ -538,7 +546,7 @@ services:
         condition: service_healthy 
 
   backtest:
-    image: docker.gainium.io/gainium/main-app:1.17.10
+    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.18.0}
     restart: 'unless-stopped'
     hostname: backtest
     user: "0:0"
@@ -584,7 +592,7 @@ services:
 
   # Price connector uses the same websocket-connector image
   price-connector:
-    image: docker.gainium.io/gainium/websocket-connector:1.7.1
+    image: docker.gainium.io/gainium/websocket-connector:${WEBSOCKET_CONNECTOR_VERSION:-1.8.0}
     restart: 'unless-stopped'
     hostname: price-connector
     command: ["npm", "run", "price"]  # Override the default command
@@ -599,6 +607,7 @@ services:
       - COINBASE_API_SECRET=${COINBASESECRET}
       - PRICEROLE=${PRICEROLE}
       - PRICE_CONNECTOR_EXCHANGES=${PRICE_CONNECTOR_EXCHANGES}
+      - ADMIN_CONFIG_ENABLED=${ADMIN_CONFIG_ENABLED:-true}
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
@@ -621,7 +630,7 @@ services:
   # Utility service for running one-off CLI commands (password reset, etc)
   # Usage: docker-compose run --rm cli-runner npm run cli:reset-password -- <username> <newPassword>
   cli-runner:
-    image: docker.gainium.io/gainium/main-app:1.17.10
+    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.18.0}
     environment:
       - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
       - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
@@ -640,7 +649,7 @@ services:
   # `PORT` is templated into nginx.conf at container start (defaults to 7555
   # inside the image, overridden here via env).
   frontend:
-    image: docker.gainium.io/gainium/frontend:2.5.1
+    image: docker.gainium.io/gainium/frontend:${FRONTEND_VERSION:-2.6.0}
     restart: 'unless-stopped'
     hostname: frontend
     ports:
@@ -649,6 +658,10 @@ services:
       - PORT=${PORT}
       - VITE_API_ENDPOINT=${VITE_API_ENDPOINT:-http://localhost:${GRAPH_QL_PORT}}
       - VITE_WS_URL=${VITE_WS_URL:-ws://localhost:${WS_PORT}}
+      # Admin API URL the dashboard reaches for the /admin page. Sh-only
+      # — cloud builds leave it unset and the page renders a "not
+      # configured" state.
+      - VITE_ADMIN_API_URL=${VITE_ADMIN_API_URL:-http://localhost:${ADMIN_PORT:-7507}}
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${PORT}/health || exit 1"]
       interval: 30s
@@ -657,6 +670,77 @@ services:
       start_period: 10s
     depends_on:
       api:
+        condition: service_healthy
+
+  # =============================================================================
+  # ADMIN SERVICE
+  # =============================================================================
+
+  # Self-hosted admin API powering the dashboard's /admin page. Manages
+  # compose-service lifecycle (start/stop/restart/logs), the operator's
+  # enabled-exchange set (synced to connectors via Redis pubsub), and
+  # image upgrades. Cloud deployments never run this service.
+  #
+  # admin-sh mounts /var/run/docker.sock so it can talk to the host
+  # daemon for container actions + image pulls. It only ever touches
+  # containers labelled with COMPOSE_PROJECT_NAME (set below) — the
+  # compose-project label scopes it to the gainium-sh stack.
+  #
+  # COMPOSE_DIR_HOST_PATH is the HOST absolute path of this docker-sh
+  # checkout. Required only for the self-upgrade flow (admin-sh spawns
+  # a one-shot `docker:27-cli` helper that mounts this path and runs
+  # `docker compose up -d admin-sh`). Leave blank to disable self-
+  # upgrade — the admin UI returns a clear error if attempted.
+  admin-sh:
+    image: docker.gainium.io/gainium/admin-sh:${ADMIN_SH_VERSION:-1.0.0}
+    restart: 'unless-stopped'
+    hostname: admin-sh
+    # Run as root inside the container so we can read /var/run/docker
+    # .sock without juggling host docker-group gids (they differ per
+    # OS — 999 on most Linux, varies on macOS Desktop). admin-sh
+    # already mounts the docker socket, which is root-on-host
+    # equivalent — running its node process as in-container root
+    # doesn't change the real privilege envelope.
+    user: "0:0"
+    ports:
+      - "${ADMIN_PORT:-7507}:${ADMIN_PORT:-7507}"
+    environment:
+      - PORT=${ADMIN_PORT:-7507}
+      - JWT_SECRET=${JWT_SECRET}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-gainium-app}
+      - CORS_ORIGIN=${CORS_ORIGIN}
+      - PRICE_CONNECTOR_EXCHANGES=${PRICE_CONNECTOR_EXCHANGES}
+      - DOCKER_REGISTRY_HOST=${DOCKER_REGISTRY_HOST:-docker.gainium.io}
+      - DOCKER_REGISTRY_USER=${DOCKER_REGISTRY_USER}
+      - DOCKER_REGISTRY_PASS=${DOCKER_REGISTRY_PASS}
+      - COMPOSE_DIR_HOST_PATH=${COMPOSE_DIR_HOST_PATH}
+      - UPGRADE_HELPER_IMAGE=${UPGRADE_HELPER_IMAGE:-docker:27-cli}
+      # Lives inside the project-dir bind mount above — admin-sh
+      # creates the file the first time an upgrade writes to it.
+      - VERSIONS_ENV_PATH=/workspace/.versions.env
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Bind mount of the docker-sh project directory. Two reasons:
+      #   1. admin-sh creates .versions.env inside this dir on first
+      #      upgrade — Docker can't auto-create a single-file bind-
+      #      mount target as a file (it'd create a directory), so we
+      #      bind the parent dir instead. No `touch` step needed.
+      #   2. Lets admin-sh read .env / docker-compose.yml if it ever
+      #      needs to (currently it doesn't, but the access is here).
+      # Trust model: admin-sh already mounts /var/run/docker.sock
+      # (root-on-host equivalent), so additional rw access to this
+      # directory is a small marginal exposure.
+      - .:/workspace
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${ADMIN_PORT:-7507}/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      redis:
         condition: service_healthy
 
 networks:

@@ -15,6 +15,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [2.2.0] - 2026-05-28
+### Added
+- **admin-sh service** powering the dashboard's new `/admin` page —
+  start/stop/restart/logs for compose services, granular per-exchange
+  enable/disable, and one-click image upgrades. Mounts the docker
+  socket; scoped to the compose project via the
+  `com.docker.compose.project` label. New env block in `.env.sample`:
+  `ADMIN_PORT`, `ADMIN_CONFIG_ENABLED`, `COMPOSE_DIR_HOST_PATH`,
+  `DOCKER_REGISTRY_*`, plus optional per-service `*_VERSION` pins.
+- `ADMIN_CONFIG_ENABLED=true` added to `api`, `exchange-connector`,
+  `user-update-connector`, and `price-connector` env blocks. These
+  services now sync their enabled-exchanges set from Redis and react
+  to operator changes without a recompose. Set `ADMIN_CONFIG_ENABLED=
+  false` (or remove from your `.env`) to keep the legacy env-only
+  behavior.
+- `REDIS_HOST` / `REDIS_PASSWORD` added to `exchange-connector` env so
+  it can join the same Redis bus for admin-config sync.
+- `VITE_ADMIN_API_URL` added to `frontend` env so the dashboard's
+  `/admin` page knows where to reach admin-sh.
+- Bind mount of the docker-sh project directory into admin-sh at
+  `/workspace`. Admin-sh creates `.versions.env` inside it on first
+  upgrade — no manual `touch` needed. (Docker can't auto-create a
+  single-file bind-mount target as a file, so we mount the parent dir
+  instead.)
+
+### Changed
+- Switched all hardcoded image tags to `${X_VERSION:-<default>}`
+  substitution so admin-sh's upgrade flow can pin new tags without
+  editing the compose file:
+  - `main-app:1.17.10` → `${MAIN_APP_VERSION:-1.18.0}`
+  - `exchange-connector:1.4.3` → `${EXCHANGE_CONNECTOR_VERSION:-1.5.0}`
+  - `websocket-connector:1.7.1` → `${WEBSOCKET_CONNECTOR_VERSION:-1.8.0}`
+  - `paper-trading:1.2.3` → `${PAPER_TRADING_VERSION:-1.2.3}`
+  - `frontend:2.5.1` → `${FRONTEND_VERSION:-2.5.1}`
+- Updated **main-app** image default from **1.17.10 ➜ 1.18.0**.
+  Added: `addExchange` GraphQL mutation refuses providers the operator
+  disabled via the new Admin → Exchanges tab (sh-only — cloud
+  unaffected).
+- Updated **exchange-connector** image default from **1.4.3 ➜ 1.5.0**.
+  Added: 503 guard on disabled exchanges driven by the admin-config
+  Redis key (sh-only).
+- Updated **websocket-connector** image default from **1.7.1 ➜ 1.8.0**.
+  Added: per-variant filter inside subscribeCandleCb + diff-and-react
+  worker lifecycle (newly-disabled families terminate; newly-enabled
+  families spawn). userStream rejects new user-key subscribes for
+  disabled exchanges and drops live streams on admin-config change.
+
 ## [2.1.0] - 2026-05-28
 ### Changed
 - Updated **frontend** image from **2.4.2 ➜ 2.5.1**. Fixed: ComboBots stats, GridBots stats, DCA bot stats, Trading page stats aggregator, Trading page Total Profit no longer drops Grid bots' unrealized PnL, CoinSelect, DCA bot view dialog; Changed: VariableChip, EmptyState placement, DrawerDealsTable, Grid bot strategy settings; Added: Unified bot-list KPI strip, Hedge DCA / Hedge Combo bot list pages, IndicatorConfigurationModal / InlineIndicatorConfig, DetailDrawer body.
