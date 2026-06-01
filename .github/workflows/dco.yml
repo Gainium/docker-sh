@@ -1,0 +1,15 @@
+name: DCO
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  dco-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check DCO sign-off on every commit
+        uses: tisonkun/actions-dco@v1.1
