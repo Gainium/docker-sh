@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [2.3.0] - 2026-06-02
+### Changed
+- Updated **main-app** image from **1.18.0 ➜ 1.18.3**. Added: `getBotEvents`: optional `category` input, Expose `paperContext` on `dcaDeal`/`comboDeal` GraphQL types, Hyperliquid builder fees.
+- Updated **exchange-connector** image from **1.5.0 ➜ 1.5.2**. Changed: Hyperliquid balance 422 error retry and log; Added: Hyperliquid builder fee.
+- Updated **frontend** image from **2.6.0 ➜ 2.7.8**. Fixed: DCA deal usage, Base Order Size input, Combo/DCA deal lists ; Changed: Bot forms, Live stores hydration, DCA "Total Funds", Base order section, Error screen, Login page, Deal cards, Bot events; Added: isTrialAvailable, Top Deals widget, Cancel button, Hyperliquid builder fees.
+
 ## [2.2.0] - 2026-05-28
 ### Added
 - **admin-sh service** powering the dashboard's new `/admin` page —
