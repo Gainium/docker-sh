@@ -126,12 +126,14 @@ The `PRICE_CONNECTOR_EXCHANGES` environment variable allows you to control which
 
 **Supported Exchanges:**
 - `binance` - Binance exchange
-- `binanceus` - Binance US exchange  
+- `binanceus` - Binance US exchange
 - `kucoin` - KuCoin exchange
 - `bybit` - Bybit exchange
 - `okx` - OKX exchange
 - `bitget` - Bitget exchange
 - `coinbase` - Coinbase exchange
+- `kraken` - Kraken exchange
+- `hyperliquid` - Hyperliquid exchange
 
 **Configuration Options:**
 ```bash
