@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [2.3.1] - 2026-06-03
+### Changed
+- Updated **frontend** image from **2.7.8 ➜ 2.7.10**. Fixed: Dynamic AR config; Added: Pair preset selector, Favorite (starred) pairs, persisted locally,  Fiat currency icons for 30 currencies.
+
 ## [2.3.0] - 2026-06-02
 ### Changed
 - Updated **main-app** image from **1.18.0 ➜ 1.18.3**. Added: `getBotEvents`: optional `category` input, Expose `paperContext` on `dcaDeal`/`comboDeal` GraphQL types, Hyperliquid builder fees.

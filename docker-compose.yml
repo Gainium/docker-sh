@@ -649,7 +649,7 @@ services:
   # `PORT` is templated into nginx.conf at container start (defaults to 7555
   # inside the image, overridden here via env).
   frontend:
-    image: docker.gainium.io/gainium/frontend:${FRONTEND_VERSION:-2.7.8}
+    image: docker.gainium.io/gainium/frontend:${FRONTEND_VERSION:-2.7.10}
     restart: 'unless-stopped'
     hostname: frontend
     ports:
