@@ -15,6 +15,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [2.3.2] - 2026-06-08
+### Changed
+- Updated **frontend** image from **2.7.10 ➜ 2.10.7**. **Changed**: Bot forms always start from default values, Capital-required popup; **Fixed**: DCA Bot Controller, Trading terminal, KuCoin spot candles, Grid bot edit page; **Added**: Trading Terminal "Exchange Orders" tab, Redesigned full-screen backtest results modal.
+- Updated **exchange-connector** image from **1.5.2 ➜ 1.6.1`**. **Fixed**: Bitget futures balance; **Added**: Kucoin hedge mode.
+- Updated **main-app** image from **1.18.3 ➜ 1.18.4`**. **Fixed**: Exchange disabled by host configuration for paper exchanges.
+- Updated **websocket-connector** image from **1.8.0 ➜ 1.9.1`**. **Fixed**: Bitget futures balance; **Added**: Hyperliquid IP rotation.
+
 ## [2.3.1] - 2026-06-03
 ### Changed
 - Updated **frontend** image from **2.7.8 ➜ 2.7.10**. Fixed: Dynamic AR config; Added: Pair preset selector, Favorite (starred) pairs, persisted locally,  Fiat currency icons for 30 currencies.
