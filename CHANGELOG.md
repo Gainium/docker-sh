@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [2.3.4] - 2026-06-10
+### Changed
+- Updated **frontend** image from **2.10.10 ➜ 2.10.21**. **Fixed**: DOM exception, Bot error messages, Closed and canceled deals no longer report an unrealized P&L, New-bot page no longer gets stuck, Editing and saving a DCA, The bot-create "insufficient credits" guard, Closed/canceled deals, Deal lists, Existing stale deals/bots now actually clear on upgrade, Closing several deals in a row from the deals card, Combo bot "Total Profit", Global Variables, DCA overview, Backtest results; **Changed**: New-bot wizard, The Bots/Deals toggle; **Added**: Bot ID to bot tables, Bot detail drawer "DCA Analysis" .
+- Updated **websocket-connector** image from **1.9.1 ➜ 1.9.3**. **Added**: User-stream extension seams, Binance connection race.
+- Updated **main-app** image from **1.18.6 ➜ 1.18.7**. **Changed**: Enable gzip/deflate compression on all API responses.
+
 ## [2.3.3] - 2026-06-09
 ### Changed
 - Updated **frontend** image from **2.10.7 ➜ 2.10.10**. **Fixed**: Toolbar action rows, Placing a Trading Terminal order, Adding or reducing funds.
