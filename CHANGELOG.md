@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [2.3.5] - 2026-06-11
+### Changed
+- Updated **frontend** image from **2.10.21 ➜ 2.10.23**. **Fixed**: Backtester performance, DIV indicator logic.
+- Updated **main-app** image from **1.18.7 ➜ 1.18.9**. **Fixed**: Backtester performance, DIV indicator logic.
+
 ## [2.3.4] - 2026-06-10
 ### Changed
 - Updated **frontend** image from **2.10.10 ➜ 2.10.21**. **Fixed**: DOM exception, Bot error messages, Closed and canceled deals no longer report an unrealized P&L, New-bot page no longer gets stuck, Editing and saving a DCA, The bot-create "insufficient credits" guard, Closed/canceled deals, Deal lists, Existing stale deals/bots now actually clear on upgrade, Closing several deals in a row from the deals card, Combo bot "Total Profit", Global Variables, DCA overview, Backtest results; **Changed**: New-bot wizard, The Bots/Deals toggle; **Added**: Bot ID to bot tables, Bot detail drawer "DCA Analysis" .
