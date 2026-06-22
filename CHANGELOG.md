@@ -15,6 +15,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [2.4.0] - 2026-06-22
+### Changed
+- Updated **frontend** image from **2.10.21 ➜ 2.14.0**. **Changed**: Backtest results, Backtester performance, Mark the app shell `noindex, nofollow`, Disable TradingView's built-in Google Analytics, Affiliate program; **Added**: Connect guide, Hedge bots options, Login & Security: Allowed Login Methods, Bot Webhooks section now has Incoming/Outgoing tabs, Funding rate; **Fixed**: Bot details, DIV indicator logic, Portfolio, Bot deals, Hyperliquid Add Exchange, Toast dismiss, Bot performance chart, Two-Factor Authentication, OAuth consent, Overview, Bot tables, New-bot page, Cloning a Combo or Grid bot now opens a pre-filled.
+- Updated **main-app** image from **1.18.9 ➜ 1.20.0**. **Changed**: Reset user process; **Added**: Snapshots per exchange, Get funding rate history; **Fixed**: REST-API multi-TP/SL validation rejected every real UUID (compared uuid values against the key allowlist).
+- Updated **exchange-connector** image from **1.6.1 ➜ 1.7.0**. **Added**: Get funding rate history.
+- Updated **paper-trading** image from **1.2.3 ➜ 1.3.0**. **Added**: Get funding rate history.
+
 ## [2.3.5] - 2026-06-11
 ### Changed
 - Updated **frontend** image from **2.10.21 ➜ 2.10.23**. **Fixed**: Backtester performance, DIV indicator logic.
