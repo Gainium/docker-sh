@@ -15,6 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [2.5.0] - 2026-07-01
+### Added
+- Updated **frontend** image from **2.14.0 ➜ 2.22.0** and **admin-sh** from **1.0.1 ➜ 1.1.0**: new **Admin → Diagnostics** page — per-exchange live price-feed liveness, Redis reachability, and service health. Flags enabled exchanges receiving no live data (the usual reason a simulated bot silently stops trading).
+### Fixed
+- Updated **paper-trading** image from **1.3.0 ➜ 1.3.2**: simulated (paper) orders on lower-activity exchanges like Coinbase could stop filling when busier markets updated at the same time — DCA buys/sells now place correctly again.
+- Updated **exchange-connector** image from **1.7.0 ➜ 1.9.0** and **websocket-connector** from **1.9.3 ➜ 1.9.4**: authoritative asset class on Bybit/Kraken and per-account user-stream liveness handling.
+- Updated **main-app** image from **1.20.0 ➜ 1.23.1**: normalized pair asset categories, per-exchange snapshots, funding-rate history, and REST-API multi-TP/SL UUID validation.
+
 ## [2.4.0] - 2026-06-22
 ### Changed
 - Updated **frontend** image from **2.10.21 ➜ 2.14.0**. **Changed**: Backtest results, Backtester performance, Mark the app shell `noindex, nofollow`, Disable TradingView's built-in Google Analytics, Affiliate program; **Added**: Connect guide, Hedge bots options, Login & Security: Allowed Login Methods, Bot Webhooks section now has Incoming/Outgoing tabs, Funding rate; **Fixed**: Bot details, DIV indicator logic, Portfolio, Bot deals, Hyperliquid Add Exchange, Toast dismiss, Bot performance chart, Two-Factor Authentication, OAuth consent, Overview, Bot tables, New-bot page, Cloning a Combo or Grid bot now opens a pre-filled.
