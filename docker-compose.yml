@@ -649,7 +649,7 @@ services:
   # `PORT` is templated into nginx.conf at container start (defaults to 7555
   # inside the image, overridden here via env).
   frontend:
-    image: docker.gainium.io/gainium/frontend:${FRONTEND_VERSION:-2.14.0}
+    image: docker.gainium.io/gainium/frontend:${FRONTEND_VERSION:-2.22.0}
     restart: 'unless-stopped'
     hostname: frontend
     ports:
@@ -692,7 +692,7 @@ services:
   # `docker compose up -d admin-sh`). Leave blank to disable self-
   # upgrade — the admin UI returns a clear error if attempted.
   admin-sh:
-    image: docker.gainium.io/gainium/admin-sh:${ADMIN_SH_VERSION:-1.0.1}
+    image: docker.gainium.io/gainium/admin-sh:${ADMIN_SH_VERSION:-1.1.0}
     restart: 'unless-stopped'
     hostname: admin-sh
     # Run as root inside the container so we can read /var/run/docker
