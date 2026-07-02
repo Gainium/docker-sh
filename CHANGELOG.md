@@ -13,6 +13,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Paper & live orders now fill on self-hosted (notably Coinbase).** The single
+  price connector ran the `candle` role, so it never produced the
+  `trade@{sym}@{exchange}` ticker feed that paper-trading (and live fill tracking)
+  consume — orders silently never filled. The connector is now pinned to the
+  `all` role in `docker-compose.yml` (produces candle streams **and** the ticker
+  feed). Hardcoded, so existing installs are fixed on the next
+  `docker compose up -d price-connector` regardless of the `PRICEROLE` in their
+  `.env`. Ticker-only exchanges like Coinbase also require `COINBASEKEY`/
+  `COINBASESECRET`. (Community thread 4872.)
 - Documented the reliable manual fallback for upgrading **admin-sh** itself
   (`docker compose pull admin-sh && docker compose up -d --force-recreate
   admin-sh`) in `DEPLOYMENT.md`, the troubleshooting table, and the

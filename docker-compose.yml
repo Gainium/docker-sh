@@ -605,7 +605,15 @@ services:
       - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
       - COINBASE_API_KEY=${COINBASEKEY}
       - COINBASE_API_SECRET=${COINBASESECRET}
-      - PRICEROLE=${PRICEROLE}
+      # Self-hosted runs a SINGLE price connector, so it must run the "all"
+      # role: it produces BOTH the candle streams (charts/indicators) AND the
+      # `trade@{sym}@{exchange}` ticker feed that paper-trading fills orders
+      # from. Hardcoded (not ${PRICEROLE}) so existing installs whose .env
+      # still says `candle` are fixed on the next `up` — a candle-only feed
+      # silently starves paper/live fills (esp. ticker-only exchanges like
+      # Coinbase, which have no candle producer). Split roles only if you add
+      # a second connector for scale.
+      - PRICEROLE=all
       - PRICE_CONNECTOR_EXCHANGES=${PRICE_CONNECTOR_EXCHANGES}
       - ADMIN_CONFIG_ENABLED=${ADMIN_CONFIG_ENABLED:-true}
       - NODE_ENV=production
