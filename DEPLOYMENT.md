@@ -194,6 +194,20 @@ Per-service image versions can be pinned via env vars
 **Admin → Services** tab also writes these for you when you click
 *Upgrade* on a row.
 
+### Upgrading `admin-sh` itself
+
+`admin-sh` is the container that performs in-product upgrades, so it can't
+recreate itself in-process — it hands off to a short-lived helper. This
+works only when `COMPOSE_DIR_HOST_PATH` (above) points at this directory.
+The dashboard waits for admin-sh to restart and reports the real outcome;
+if the environment can't complete a self-upgrade it shows a clear error
+rather than a false "success". Either way, the reliable manual path is:
+
+```bash
+docker compose pull admin-sh
+docker compose up -d --force-recreate admin-sh
+```
+
 ---
 
 # Part 2 — Full Local Deployment From Source
@@ -488,6 +502,7 @@ Common signs that something's misconfigured:
 | Paper bots stuck `monitoring` | `PAPER_TRADING_API_URL` wrong; paper-trading service down |
 | Real-time charts not updating | websocket-connector `main` or `price` process not running; check Redis/Rabbit connectivity |
 | Admin tab reports admin API unreachable | Expected on local-source dev — `admin-sh` is docker-only. See note in § 2.4. |
+| `admin-sh` upgrade fails or stays on the old version | `COMPOSE_DIR_HOST_PATH` unset/wrong, or the compose dir isn't bind-mounted into `admin-sh`. The dashboard shows the error; finish it by hand: `docker compose pull admin-sh && docker compose up -d --force-recreate admin-sh`. |
 | Host process can't connect to Mongo / Redis / RabbitMQ | The infra ports aren't published. Use `-f docker-compose.local.yml` (see § 2.3). |
 
 ---

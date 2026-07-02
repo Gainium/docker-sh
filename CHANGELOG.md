@@ -13,6 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Documented the reliable manual fallback for upgrading **admin-sh** itself
+  (`docker compose pull admin-sh && docker compose up -d --force-recreate
+  admin-sh`) in `DEPLOYMENT.md`, the troubleshooting table, and the
+  `COMPOSE_DIR_HOST_PATH` comment — for when self-upgrade is disabled or
+  fails. Pairs with admin-sh ≥ 1.2.0 (clear self-upgrade errors + real
+  success/failure) and frontend ≥ 2.23.0 (Admin → Updates surfaces it).
+
 ### Security
 
 ## [2.5.0] - 2026-07-01

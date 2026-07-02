@@ -690,7 +690,10 @@ services:
   # checkout. Required only for the self-upgrade flow (admin-sh spawns
   # a one-shot `docker:27-cli` helper that mounts this path and runs
   # `docker compose up -d admin-sh`). Leave blank to disable self-
-  # upgrade — the admin UI returns a clear error if attempted.
+  # upgrade — the admin UI then returns a clear, actionable error
+  # instead of silently staying on the old image. In that case (or if a
+  # self-upgrade fails) upgrade admin-sh by hand from this dir:
+  #   docker compose pull admin-sh && docker compose up -d --force-recreate admin-sh
   admin-sh:
     image: docker.gainium.io/gainium/admin-sh:${ADMIN_SH_VERSION:-1.1.0}
     restart: 'unless-stopped'
