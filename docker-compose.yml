@@ -74,7 +74,7 @@ services:
       start_period: 30s
 
   exchange-connector:
-    image: docker.gainium.io/gainium/exchange-connector:${EXCHANGE_CONNECTOR_VERSION:-1.14.1}
+    image: docker.gainium.io/gainium/exchange-connector:${EXCHANGE_CONNECTOR_VERSION:-1.14.2}
     restart: 'unless-stopped'
     hostname: exchange-connector
     environment:
