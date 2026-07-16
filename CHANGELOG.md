@@ -54,6 +54,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated **frontend** image from **2.30.13 ➜ 2.32.2**.
 - Updated **admin-sh** image from **1.3.0 ➜ 1.3.1**.
 
+## [auto-2026-07-16] - 2026-07-16
+### Changed
+- Updated **exchange-connector** image from **1.15.9 ➜ 1.16.0**.
+- Updated **websocket-connector** image from **1.13.0 ➜ 1.13.1**.
+- Updated **main-app** image from **1.33.0 ➜ 1.35.5**.
+- Updated **frontend** image from **2.32.2 ➜ 2.33.18**.
+
 ## [2.5.0] - 2026-07-01
 ### Added
 - Updated **frontend** image from **2.14.0 ➜ 2.22.0** and **admin-sh** from **1.0.1 ➜ 1.1.0**: new **Admin → Diagnostics** page — per-exchange live price-feed liveness, Redis reachability, and service health. Flags enabled exchanges receiving no live data (the usual reason a simulated bot silently stops trading).
