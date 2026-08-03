@@ -13,6 +13,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The documented upgrade path never upgraded anything.** `DEPLOYMENT.md`
+  (§ 1.5) and `README.md` told operators to run `docker compose pull &&
+  docker compose up -d`, but the image tags are defaults inside the tracked
+  `docker-compose.yml` (`${MAIN_APP_VERSION:-…}`) that new releases bump in
+  this repository — and no doc mentioned `git pull`. On a checkout that was
+  never pulled, `pull` re-fetches the tags already running, reports success,
+  and the deployment silently stays on the old build (e.g. a stack cloned
+  before the last bump keeps `frontend:2.33.18` forever while `2.42.19` is
+  published). `git pull` is now the first step of every documented manual
+  upgrade, with a troubleshooting entry for "pull says up to date but the
+  bug is still there". Admin → Services was never affected: it resolves
+  versions from the registry into `.versions.env` instead of reading the
+  compose defaults — and, conversely, plain `docker compose` commands do not
+  read `.versions.env`. (Community thread 4987.)
 - **Paper & live orders now fill on self-hosted (notably Coinbase).** The single
   price connector ran the `candle` role, so it never produced the
   `trade@{sym}@{exchange}` ticker feed that paper-trading (and live fill tracking)

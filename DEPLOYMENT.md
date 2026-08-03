@@ -184,15 +184,31 @@ docker compose logs -f api
 # Restart one service after a config change
 docker compose up -d --force-recreate api
 
-# Upgrade a pinned image (see Admin → Services in the dashboard for the UI version)
+# Upgrade to the latest published images (see Admin → Services in the
+# dashboard for the UI version).
+# `git pull` FIRST — without it the next two commands do nothing.
+git pull
 docker compose pull
 docker compose up -d
 ```
 
+**Why `git pull` is required.** The image tags are defaults baked into the
+tracked `docker-compose.yml`
+(`image: …/main-app:${MAIN_APP_VERSION:-1.40.5}`), and new releases land by
+bumping those defaults in this repository. On a checkout you never pulled,
+`docker compose pull` re-fetches the exact tags you already run — it exits
+successfully, nothing changes, and you silently stay on the old build.
+Compare `docker compose config --images` before and after a `git pull` to
+see what you would actually get.
+
 Per-service image versions can be pinned via env vars
-(`MAIN_APP_VERSION`, `EXCHANGE_CONNECTOR_VERSION`, …). The dashboard's
-**Admin → Services** tab also writes these for you when you click
-*Upgrade* on a row.
+(`MAIN_APP_VERSION`, `EXCHANGE_CONNECTOR_VERSION`, …) in `.env`; those
+override the defaults, and you own them from then on. The dashboard's
+**Admin → Services** tab needs no `git pull`: it resolves the newest tag
+from the registry and pins it in `.versions.env`, which it passes to
+compose itself. Note that plain `docker compose` commands do **not** read
+`.versions.env` (compose auto-loads only `.env`), so the manual path above
+is driven by the tracked defaults — i.e. by `git pull`.
 
 ### Upgrading `admin-sh` itself
 
@@ -204,6 +220,7 @@ if the environment can't complete a self-upgrade it shows a clear error
 rather than a false "success". Either way, the reliable manual path is:
 
 ```bash
+git pull                     # brings in the new pinned tag — required
 docker compose pull admin-sh
 docker compose up -d --force-recreate admin-sh
 ```
@@ -502,7 +519,8 @@ Common signs that something's misconfigured:
 | Paper bots stuck `monitoring` | `PAPER_TRADING_API_URL` wrong; paper-trading service down |
 | Real-time charts not updating | websocket-connector `main` or `price` process not running; check Redis/Rabbit connectivity |
 | Admin tab reports admin API unreachable | Expected on local-source dev — `admin-sh` is docker-only. See note in § 2.4. |
-| `admin-sh` upgrade fails or stays on the old version | `COMPOSE_DIR_HOST_PATH` unset/wrong, or the compose dir isn't bind-mounted into `admin-sh`. The dashboard shows the error; finish it by hand: `docker compose pull admin-sh && docker compose up -d --force-recreate admin-sh`. |
+| `admin-sh` upgrade fails or stays on the old version | `COMPOSE_DIR_HOST_PATH` unset/wrong, or the compose dir isn't bind-mounted into `admin-sh`. The dashboard shows the error; finish it by hand: `git pull && docker compose pull admin-sh && docker compose up -d --force-recreate admin-sh`. |
+| `docker compose pull` reports everything up to date, but a fixed bug is still there | The checkout is stale. The tags are defaults in the tracked `docker-compose.yml`, so `pull` re-fetches what you already have. Run `git pull` first, then `docker compose pull && docker compose up -d`. See § 1.5. |
 | Host process can't connect to Mongo / Redis / RabbitMQ | The infra ports aren't published. Use `-f docker-compose.local.yml` (see § 2.3). |
 
 ---

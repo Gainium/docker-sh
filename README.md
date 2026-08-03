@@ -261,16 +261,28 @@ docker-compose up
 
 ### Updating Images
 
+> **`git pull` first — it is part of the upgrade, not optional.** The image
+> tags are defaults in the tracked `docker-compose.yml`
+> (`${MAIN_APP_VERSION:-…}`), and new releases land by bumping them in this
+> repository. On a stale checkout `docker-compose pull` succeeds while
+> re-fetching the tags you already run, so nothing updates. Alternatively use
+> the dashboard's **Admin → Services** tab, which pins registry versions in
+> `.versions.env` and needs no `git pull`.
+
 ```bash
-# Pull latest images from registry
+# Update and restart services (the full upgrade)
+git pull
+docker-compose pull && docker-compose up -d
+
+# Pull latest images from registry only
 docker-compose pull
 
 # Pull specific image
 docker pull docker.gainium.io/gainium/main-app:1.0.0
 docker pull docker.gainium.io/gainium/frontend:1.0.0
 
-# Update and restart services
-docker-compose pull && docker-compose up -d
+# See which tags your checkout would actually pull
+docker compose config --images
 ```
 
 ### Managing Services
@@ -315,7 +327,8 @@ docker stats
 ### Maintenance Commands
 
 ```bash
-# Update images
+# Update images (git pull first — see "Updating Images" above)
+git pull
 docker-compose pull
 docker-compose up -d
 
