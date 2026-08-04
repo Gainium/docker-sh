@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Per-installation encryption key.** `ENCRYPT_KEY` is now wired through to
+  every service that reads or writes stored exchange API credentials, and
+  `./setupEncryptKey.sh` generates one into the host `.env` (32 random bytes,
+  `0600`, never overwrites an existing key). Without it the application falls
+  back to a key compiled into the image, which is identical in every
+  installation and readable in the public source — so a copy of the database
+  alone was enough to decrypt every stored credential. Documented in
+  `DEPLOYMENT.md` → "Encryption key", including migrating an installation that
+  is already running: credentials written under either key stay readable, so a
+  running install can set a key now and re-encrypt afterwards with
+  `docker compose run --rm cli-runner npm run cli:rotate-encrypt-key`.
+  The key cannot be recovered if lost — back it up.
+
 ### Changed
 
 ### Fixed

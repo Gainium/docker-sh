@@ -61,6 +61,7 @@ stack running in ~5 minutes.
 git clone https://github.com/Gainium/docker-sh.git
 cd docker-sh
 cp .env.sample .env
+./setupEncryptKey.sh   # generates this installation's ENCRYPT_KEY — see below
 ```
 
 Edit `.env`. The defaults are sane for a single-host localhost install
@@ -69,6 +70,7 @@ Edit `.env`. The defaults are sane for a single-host localhost install
 | Variable | What it is | When to change |
 |---|---|---|
 | `MONGO_DB_PASSWORD`, `REDIS_PASSWORD`, `RABBIT_PASSWORD`, `JWT_SECRET` | Service credentials | **Always rotate from the defaults** before exposing to anything but localhost |
+| `ENCRYPT_KEY` | Encrypts the exchange API credentials your users store | **Set it before you boot** — run `./setupEncryptKey.sh`. Back it up; it cannot be recovered. See [Encryption key](#encryption-key) |
 | `COINBASEKEY`, `COINBASESECRET` | Coinbase Pro API creds | Only if you'll use Coinbase |
 | `PRICE_CONNECTOR_EXCHANGES` | Initial enabled exchanges | Leave as default; manage from the dashboard's Admin tab after first boot |
 | `PORT`, `GRAPH_QL_PORT`, `WS_PORT`, `BACKTEST_PORT`, `ADMIN_PORT` | Service host-side ports | Only if you've got something else on those ports |
@@ -90,6 +92,93 @@ should land on the login screen.
 The first account you register becomes the admin. There is no built-in
 admin account; the first `register` graphql mutation seeds an empty user
 list.
+
+## Encryption key
+
+The exchange API credentials your users add — key, secret, passphrase —
+are stored encrypted, and `ENCRYPT_KEY` is what they are encrypted with.
+
+**Set your own.** Without it the application falls back to a key that is
+compiled into the image, and that key is the same in every installation
+of Gainium self-hosted and is readable in the public source. Anyone who
+obtains a copy of your database — a stolen backup, a misconfigured Mongo
+port, a disk that leaves your control — can decrypt every stored
+credential from it without ever touching your host. With your own key
+set, the database on its own is not enough.
+
+It is not a substitute for looking after the database, and it does not
+protect a host someone already has access to: the running services need
+the key, so it is in their environment. What it removes is the case where
+a copy of the data is enough on its own.
+
+```bash
+./setupEncryptKey.sh
+```
+
+That generates 32 random bytes (equivalent to `openssl rand -hex 32`),
+writes them into your `.env` as `ENCRYPT_KEY`, and tightens that file to
+`0600`. It refuses to overwrite a key that is already there, so it is
+safe to re-run. Compose passes the key to every service that reads or
+writes credentials.
+
+> ⚠️ **Back the key up, off this host, before you generate data under
+> it.** Losing it means every stored exchange credential is permanently
+> unreadable — by you, by us, by anyone. There is no recovery path and no
+> copy held anywhere else. If that happens, the only way forward is for
+> each user to delete their exchange connections and enter their keys
+> again.
+>
+> Keep it out of git, and keep it with (not in) your database backups —
+> a backup you cannot decrypt is not a backup. Treat rotating it as its
+> own planned operation: run the backfill below immediately afterwards,
+> or the values written under the previous key stop being readable.
+
+### Migrating an installation that is already running
+
+Nothing breaks if you have been running without a key. The application
+reads values written under either key, so you can set yours now and
+re-encrypt what is already stored afterwards, at your convenience.
+
+```bash
+# 1. Generate the key and restart so every service has it.
+./setupEncryptKey.sh
+docker compose up -d
+
+# 2. See what is still under the old key. Read-only, writes nothing.
+docker compose run --rm cli-runner npm run cli:rotate-encrypt-key -- --dry-run
+
+# 3. Re-encrypt.
+docker compose run --rm cli-runner npm run cli:rotate-encrypt-key
+
+# 4. Confirm. `underFallback` should be 0.
+docker compose run --rm cli-runner npm run cli:rotate-encrypt-key -- --verify
+```
+
+Between steps 1 and 3, new and edited credentials are written under your
+key and older ones are still read under the old one — both work, so
+there is no window where anything is unreadable.
+
+Notes on step 3:
+
+- **It is safe to run with bots trading.** Each value is read and written
+  individually, and a credential that a user changes while it runs is
+  detected and left alone rather than overwritten (reported as `raced` —
+  re-run to pick those up).
+- **It resumes.** Values already re-encrypted are recognised and skipped,
+  so an interrupted run can simply be repeated.
+- **It never overwrites what it cannot read.** A value that decrypts
+  under neither key is reported and left untouched.
+- On a large installation it takes seconds to a couple of minutes.
+
+If `--verify` still reports a non-zero `underFallback`, re-run step 3 —
+the usual cause is a credential edited mid-run.
+
+Stored account passwords are a separate matter and are **not** part of
+the default run: each account is upgraded to a modern password hash the
+next time that user signs in, with no action from you. `--only=passwords`
+does the whole set in one pass, but it is one-way — an installation
+downgraded afterwards to an image that predates it would not be able to
+log those accounts in.
 
 ## 1.4 Custom domain (reverse proxy)
 

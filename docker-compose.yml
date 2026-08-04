@@ -158,6 +158,7 @@ services:
       - SERVER_HOST=${SERVER_HOST}
       - BACKTEST_SERVICE_HOST=${BACKTEST_SERVICE_HOST}
       - JWT_SECRET=${JWT_SECRET}
+      - ENCRYPT_KEY=${ENCRYPT_KEY}
       - NODE_ENV=production
       - CORS_ORIGIN=${CORS_ORIGIN}
       - ADMIN_CONFIG_ENABLED=${ADMIN_CONFIG_ENABLED:-true}
@@ -232,6 +233,7 @@ services:
       - RABBIT_PASSWORD=${RABBIT_PASSWORD}
       - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
       - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL}
+      - ENCRYPT_KEY=${ENCRYPT_KEY}
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
@@ -275,6 +277,7 @@ services:
       - RABBIT_PASSWORD=${RABBIT_PASSWORD}
       - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
       - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL}
+      - ENCRYPT_KEY=${ENCRYPT_KEY}
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
@@ -318,6 +321,7 @@ services:
       - RABBIT_PASSWORD=${RABBIT_PASSWORD}
       - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
       - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL}
+      - ENCRYPT_KEY=${ENCRYPT_KEY}
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
@@ -361,6 +365,7 @@ services:
       - RABBIT_PASSWORD=${RABBIT_PASSWORD}
       - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
       - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL}
+      - ENCRYPT_KEY=${ENCRYPT_KEY}
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
@@ -404,6 +409,7 @@ services:
       - RABBIT_PASSWORD=${RABBIT_PASSWORD}
       - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
       - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL}
+      - ENCRYPT_KEY=${ENCRYPT_KEY}
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
@@ -447,6 +453,7 @@ services:
       - RABBIT_PASSWORD=${RABBIT_PASSWORD}
       - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
       - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL}
+      - ENCRYPT_KEY=${ENCRYPT_KEY}
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
@@ -487,6 +494,7 @@ services:
       - RABBIT_PASSWORD=${RABBIT_PASSWORD}
       - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
       - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL}
+      - ENCRYPT_KEY=${ENCRYPT_KEY}
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
@@ -526,6 +534,7 @@ services:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - REDIS_HOST=${REDIS_HOST}
       - WS_PORT=${WS_PORT}
+      - ENCRYPT_KEY=${ENCRYPT_KEY}
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
@@ -566,6 +575,7 @@ services:
       - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL}
       - BACKTEST_PORT=${BACKTEST_PORT}
       - MAIN_SERVICE_HOST=${MAIN_SERVICE_HOST}
+      - ENCRYPT_KEY=${ENCRYPT_KEY}
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
@@ -647,6 +657,7 @@ services:
       - MONGO_DB_HOST=${MONGO_DB_HOST}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - REDIS_HOST=${REDIS_HOST}
+      - ENCRYPT_KEY=${ENCRYPT_KEY}
       - NODE_ENV=production
     depends_on:
       mongo:

@@ -37,6 +37,9 @@ cd docker-sh
 # Copy the sample environment file
 cp .env.sample .env
 
+# Generate this installation's encryption key (see below — back it up)
+./setupEncryptKey.sh
+
 # Edit the .env file with your configuration
 nano .env  # or use your preferred editor
 ```
@@ -64,6 +67,28 @@ docker-compose logs -f
 - **Frontend**: http://localhost:7500 (Web dashboard)
 
 ## 🔧 Environment Configuration
+
+### 🔐 Encryption key (`ENCRYPT_KEY`)
+
+The exchange API credentials your users add are stored encrypted, and
+`ENCRYPT_KEY` is what encrypts them. Generate one for your installation:
+
+```bash
+./setupEncryptKey.sh
+```
+
+Without it, the application falls back to a key compiled into the image —
+the same one in every self-hosted installation, and readable in the
+public source — so a copy of your database would be enough on its own to
+decrypt every stored credential. With your own key, it is not.
+
+**Back the key up somewhere off this host.** If it is lost, the stored
+exchange credentials cannot be recovered by anyone, and every user has to
+enter their keys again.
+
+Already running without one? You can set it now and re-encrypt what is
+already stored afterwards — nothing breaks in between. See
+[Encryption key](DEPLOYMENT.md#encryption-key) in the deployment guide.
 
 ### Optional Variables
 
