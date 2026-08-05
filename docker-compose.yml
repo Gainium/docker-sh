@@ -159,6 +159,10 @@ services:
       - BACKTEST_SERVICE_HOST=${BACKTEST_SERVICE_HOST}
       - JWT_SECRET=${JWT_SECRET}
       - ENCRYPT_KEY=${ENCRYPT_KEY}
+      # Set to false to migrate stored credentials by hand instead — see
+      # "Encryption key" in DEPLOYMENT.md. Only the api runs the backfill;
+      # the other services share this image but must not race it.
+      - ENCRYPT_KEY_AUTO_BACKFILL=${ENCRYPT_KEY_AUTO_BACKFILL:-true}
       - NODE_ENV=production
       - CORS_ORIGIN=${CORS_ORIGIN}
       - ADMIN_CONFIG_ENABLED=${ADMIN_CONFIG_ENABLED:-true}

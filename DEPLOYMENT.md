@@ -139,26 +139,47 @@ Nothing breaks if you have been running without a key. The application
 reads values written under either key, so you can set yours now and
 re-encrypt what is already stored afterwards, at your convenience.
 
+There are two steps, and the second one is not yours:
+
 ```bash
 # 1. Generate the key and restart so every service has it.
 ./setupEncryptKey.sh
 docker compose up -d
 
-# 2. See what is still under the old key. Read-only, writes nothing.
-docker compose run --rm cli-runner npm run cli:rotate-encrypt-key -- --dry-run
+# 2. There is no step 2. On its next start the api notices that values are
+#    still under the old key and re-encrypts them itself.
+```
 
-# 3. Re-encrypt.
-docker compose run --rm cli-runner npm run cli:rotate-encrypt-key
+Watch it happen, if you like:
 
-# 4. Confirm. `underFallback` should be 0.
+```bash
+docker compose logs -f api | grep encryptKeyBackfill
+```
+
+It runs in the background, so the api serves traffic throughout, and it
+does nothing at all once there is nothing left to migrate — restarts
+after that cost one query. Until it has finished, new and edited
+credentials are written under your key and older ones are still read
+under the old one; both work, so there is no window where anything is
+unreadable.
+
+To confirm afterwards — `underFallback` should be 0:
+
+```bash
 docker compose run --rm cli-runner npm run cli:rotate-encrypt-key -- --verify
 ```
 
-Between steps 1 and 3, new and edited credentials are written under your
-key and older ones are still read under the old one — both work, so
-there is no window where anything is unreadable.
+**If you would rather do it yourself**, set
+`ENCRYPT_KEY_AUTO_BACKFILL=false` in `.env` and run it when it suits you.
+The same command takes `--dry-run` to report what it would change without
+writing anything:
 
-Notes on step 3:
+```bash
+docker compose run --rm cli-runner npm run cli:rotate-encrypt-key -- --dry-run
+docker compose run --rm cli-runner npm run cli:rotate-encrypt-key
+```
+
+Either way, the same code does the work:
 
 - **It is safe to run with bots trading.** Each value is read and written
   individually, and a credential that a user changes while it runs is
@@ -170,8 +191,8 @@ Notes on step 3:
   under neither key is reported and left untouched.
 - On a large installation it takes seconds to a couple of minutes.
 
-If `--verify` still reports a non-zero `underFallback`, re-run step 3 —
-the usual cause is a credential edited mid-run.
+If `--verify` still reports a non-zero `underFallback`, restart the api
+(or re-run the command) — the usual cause is a credential edited mid-run.
 
 Stored account passwords are a separate matter and are **not** part of
 the default run: each account is upgraded to a modern password hash the
