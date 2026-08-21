@@ -25,6 +25,7 @@ PASSWORD="$2"
 
 echo "🔐 Resetting password for user: $USERNAME"
 echo "This will connect to MongoDB and update the user password."
+echo "All existing sessions for this user will be signed out."
 echo ""
 
 # Run the CLI command in the container

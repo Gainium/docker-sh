@@ -369,6 +369,12 @@ docker-compose down -v --rmi all
 
 ### Password Reset
 
+> **This is the only password-recovery path on a self-hosted install.** There is
+> no "forgot password" email link — that flow exists only on Gainium's hosted
+> service, which has mail delivery configured. On your own deployment, a user
+> who cannot sign in needs an operator with shell access to run the command
+> below. Plan for that before you hand accounts to people.
+
 To reset a user's password from the command line:
 
 ```bash
@@ -385,6 +391,34 @@ docker-compose run --rm cli-runner npm run cli:reset-password -- <username> <new
 ```bash
 ./resetPassword.sh admin MyNewPass123
 ```
+
+**This signs the user out everywhere.** Every existing session for the account is
+revoked, so the user (and anyone else holding one of their sessions) must sign in
+again with the new password. That is deliberate: if you are resetting because an
+account may be compromised, the intruder's session must not survive the reset.
+
+#### When users need this
+
+- **Forgot password, cannot sign in.** The only route — there is no email link.
+- **Forgot password but still signed in.** Also this route. Since main-app
+  `1.52.0`, the in-app **Settings → Change Password** form requires the account's
+  *current* password, so a signed-in user who no longer knows it cannot change it
+  themselves. (Before that release a session alone was enough to set a new
+  password, which meant any leaked session was a full account takeover —
+  GHSA-4m6h-m5mj-733x.)
+- **Account suspected compromised.** Reset here rather than from the app: this
+  command revokes every session, which is what evicts the intruder.
+
+#### Operator notes
+
+- The username is the account's **email address**, matched case-insensitively.
+- The new password is written as a bcrypt hash, the same as every other write
+  path — it is never stored reversibly.
+- The password appears in your shell history and in the process list while the
+  command runs. Clear it afterwards (`history -d`) on a shared host, and have
+  the user change it once they are back in.
+- The command runs `cli-runner` against your live database; the stack does not
+  need to be restarted afterwards.
 
 ## 🔍 Troubleshooting
 

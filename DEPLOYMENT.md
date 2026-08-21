@@ -93,6 +93,22 @@ The first account you register becomes the admin. There is no built-in
 admin account; the first `register` graphql mutation seeds an empty user
 list.
 
+### If someone forgets their password
+
+There is **no "forgot password" email link on self-hosted** — that flow belongs
+to the hosted service, which has mail delivery configured. Recovery here is an
+operator task:
+
+```bash
+./resetPassword.sh <email> <newPassword>
+```
+
+This also applies to a user who is *still signed in* but no longer knows their
+password: since main-app `1.52.0` the in-app Change Password form requires the
+current one. The command revokes every session on the account, so it is also the
+right tool if you think an account has been compromised. Full notes in
+[`README.md` → Password Reset](README.md#password-reset).
+
 ## Encryption key
 
 The exchange API credentials your users add — key, secret, passphrase —
