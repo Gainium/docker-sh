@@ -118,10 +118,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated **frontend** image from **2.42.24 ➜ 2.43.14**.
 
 ## [auto-2026-08-24] - 2026-08-24
-### Changed
+### Security
+**This release carries published security fixes. Upgrading is recommended.**
+
 - Updated **main-app** image from **1.51.14 ➜ 1.53.4**.
 - Updated **paper-trading** image from **1.3.3 ➜ 1.3.7**.
 - Updated **frontend** image from **2.43.14 ➜ 2.46.2**.
+
+⚠️ **Upgrade main-app and frontend together.** Changing your password now
+requires your current password, which is a breaking API change: a 2.43.x
+frontend against a 1.53.x main-app cannot change a password at all. The pins
+above move as a set — if you override either with an explicit
+`MAIN_APP_VERSION` / `FRONTEND_VERSION`, move both.
+
+Fixed in these versions, with full detail in each repository's advisories:
+
+- **Account takeover via `changePassword`** — a session token alone was enough
+  to set a new password, and existing sessions survived the change
+  (GHSA-4m6h-m5mj-733x).
+- **Unauthenticated Socket.IO stream** — a crafted payload could subscribe to
+  another user's live feed, and any peer able to reach the port could forge bot,
+  deal and balance events into a user's dashboard (GHSA-hmxp-q7gj-rr88).
+- **Sessions never expired** — tokens were signed with an expiry roughly 56,000
+  years out, so a leaked token was permanent access (GHSA-7gxr-ppgj-jjg8).
+- **Login hardening** — no rate limiting on the login mutation, and distinct
+  errors that let an attacker enumerate which addresses have accounts
+  (GHSA-whmj-5f67-9f3w).
+- **Replayable API-key signatures** — the signed `time` was never checked
+  against the clock, so a captured request stayed valid indefinitely
+  (GHSA-whmj-5f67-9f3w).
+- **Denial of service via list filters** — a crafted filter value compiled into
+  a catastrophic-backtracking regex and pinned the process
+  (GHSA-cc5x-49gv-35wr).
+- **Paper-trading** — authentication bypass via NoSQL operator injection
+  (GHSA-8p69-9fjc-6g78), a cross-tenant order read, a wallet-corrupting `NaN`
+  top-up, and an unthrottled credential-verify oracle (GHSA-5xf3-v5jf-jwrc).
+- **Backtest file serving** was not bounded to the `user-files` directory.
+
+Also read **"Only expose the dashboard and the API"** in `README.md`: the
+internal services authenticate nothing by design and must not be reachable from
+a network you do not control.
+
+Reported by **M1ch43lV**, whose reports prompted this release.
 
 ## [2.5.0] - 2026-07-01
 ### Added
