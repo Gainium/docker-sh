@@ -118,6 +118,32 @@ already stored afterwards — nothing breaks in between. See
 | `PORT` | `7500` | Frontend web dashboard |
 | `BACKTEST_PORT` | `7515` | Backtesting service |
 
+### 🔒 Only expose the dashboard and the API
+
+**The internal services authenticate nothing. They are safe because they are not
+reachable, and nothing else.** Publish `PORT` (7500) and `GRAPH_QL_PORT` (7503)
+if you need them; keep everything else on the internal Docker network or bound
+to the host's loopback interface, and do not open them in your firewall.
+
+This matters most for two of them:
+
+- **exchange-connector.** It is a credential pass-through proxy, and
+  `GET /verify` / `GET /keyPermissions` take *any* exchange API key you hand
+  them, ask the venue whether it is valid, and answer — including whether the
+  key can withdraw. There is no caller authentication and no throttle by
+  design, because the only intended caller is the balancer. Reachable from
+  outside, it becomes a bulk validator for stolen exchange keys. Never publish
+  its port.
+- **paper-trading.** `POST /user` creates an account with a caller-chosen
+  starting balance and has no authentication. The funds are simulated, so the
+  loss is polluted data rather than money, but it is not an endpoint to expose.
+  On a single-host deployment you can set `APP_HOST=127.0.0.1` for this service
+  and take it off the network entirely.
+
+If you put a reverse proxy in front of the stack, allow only the dashboard and
+API routes through it. Nothing else in this compose file is designed to face a
+network you do not control.
+
 ### ⚠️ Important: PRICEROLE Configuration
 
 The `PRICEROLE` environment variable controls how the system handles price updates and can significantly impact resource usage:
