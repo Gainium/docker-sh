@@ -14,8 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `./setupEncryptKey.sh` generates one into the host `.env` (32 random bytes,
   `0600`, never overwrites an existing key). Without it the application falls
   back to a key compiled into the image, which is identical in every
-  installation and readable in the public source — so a copy of the database
-  alone was enough to decrypt every stored credential. Documented in
+  installation, so setting your own key is strongly recommended.
+  Documented in
   `DEPLOYMENT.md` → "Encryption key", including migrating an installation that
   is already running: credentials written under either key stay readable, so a
   running install can set a key now and re-encrypt afterwards with
@@ -39,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   bug is still there". Admin → Services was never affected: it resolves
   versions from the registry into `.versions.env` instead of reading the
   compose defaults — and, conversely, plain `docker compose` commands do not
-  read `.versions.env`. (Community thread 4987.)
+  read `.versions.env`.
 - **Paper & live orders now fill on self-hosted (notably Coinbase).** The single
   price connector ran the `candle` role, so it never produced the
   `trade@{sym}@{exchange}` ticker feed that paper-trading (and live fill tracking)
@@ -48,7 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   feed). Hardcoded, so existing installs are fixed on the next
   `docker compose up -d price-connector` regardless of the `PRICEROLE` in their
   `.env`. Ticker-only exchanges like Coinbase also require `COINBASEKEY`/
-  `COINBASESECRET`. (Community thread 4872.)
+  `COINBASESECRET`.
 - Documented the reliable manual fallback for upgrading **admin-sh** itself
   (`docker compose pull admin-sh && docker compose up -d --force-recreate
   admin-sh`) in `DEPLOYMENT.md`, the troubleshooting table, and the
@@ -153,7 +153,7 @@ Fixed in these versions, with full detail in each repository's advisories:
 - **Paper-trading** — authentication bypass via NoSQL operator injection
   (GHSA-8p69-9fjc-6g78), a cross-tenant order read, a wallet-corrupting `NaN`
   top-up, and an unthrottled credential-verify oracle (GHSA-5xf3-v5jf-jwrc).
-- **Backtest file serving** was not bounded to the `user-files` directory.
+- **Backtest file serving** is now bounded to the `user-files` directory.
 
 Also read **"Only expose the dashboard and the API"** in `README.md`: the
 internal services authenticate nothing by design and must not be reachable from
