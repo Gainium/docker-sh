@@ -161,6 +161,15 @@ a network you do not control.
 
 Reported by **M1ch43lV**, whose reports prompted this release.
 
+## [auto-2026-09-15] - 2026-09-15
+### Changed
+- Updated **exchange-connector** image from **1.19.11 ➜ 1.20.25**.
+- Updated **paper-trading** image from **1.3.7 ➜ 1.3.11**.
+- Updated **websocket-connector** image from **1.14.5 ➜ 1.14.18**.
+- Updated **main-app** image from **1.53.4 ➜ 1.59.19**.
+- Updated **frontend** image from **2.46.2 ➜ 2.54.10**.
+- Updated **admin-sh** image from **1.4.0 ➜ 1.4.2**.
+
 ## [2.5.0] - 2026-07-01
 ### Added
 - Updated **frontend** image from **2.14.0 ➜ 2.22.0** and **admin-sh** from **1.0.1 ➜ 1.1.0**: new **Admin → Diagnostics** page — per-exchange live price-feed liveness, Redis reachability, and service health. Flags enabled exchanges receiving no live data (the usual reason a simulated bot silently stops trading).
