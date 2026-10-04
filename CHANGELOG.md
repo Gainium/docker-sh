@@ -174,6 +174,13 @@ Reported by **M1ch43lV**, whose reports prompted this release.
 ### Changed
 - Updated **main-app** image from **1.59.19 ➜ 1.59.23**.
 
+## [auto-2026-10-04] - 2026-10-04
+### Changed
+- Updated **exchange-connector** image from **1.20.25 ➜ 1.27.3**.
+- Updated **websocket-connector** image from **1.14.18 ➜ 1.16.3**.
+- Updated **main-app** image from **1.59.23 ➜ 1.74.2**.
+- Updated **frontend** image from **2.54.10 ➜ 2.69.3**.
+
 ## [2.5.0] - 2026-07-01
 ### Added
 - Updated **frontend** image from **2.14.0 ➜ 2.22.0** and **admin-sh** from **1.0.1 ➜ 1.1.0**: new **Admin → Diagnostics** page — per-exchange live price-feed liveness, Redis reachability, and service health. Flags enabled exchanges receiving no live data (the usual reason a simulated bot silently stops trading).
