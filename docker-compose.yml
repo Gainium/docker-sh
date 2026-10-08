@@ -651,7 +651,10 @@ services:
 
   # Utility service for running one-off CLI commands (password reset, etc)
   # Usage: docker-compose run --rm cli-runner npm run cli:reset-password -- <username> <newPassword>
+  # In a profile so `up` does not start it: with no command it would boot the
+  # image's default server, which exits 1 and shows as a failed container.
   cli-runner:
+    profiles: ["cli"]
     image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.74.2}
     environment:
       - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
