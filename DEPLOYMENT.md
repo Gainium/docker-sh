@@ -242,6 +242,16 @@ VITE_ADMIN_API_URL=https://admin.gainium.mycompany.io
 CORS_ORIGIN=https://gainium.mycompany.io
 ```
 
+`CORS_ORIGIN` is read by both the api and admin-sh. If you open the
+dashboard from more than one address (for example the domain and a LAN IP),
+list them all, separated by commas:
+
+```bash
+CORS_ORIGIN=https://gainium.mycompany.io,http://192.168.1.50:7500
+```
+
+Spaces between entries are also accepted; if you use them, quote the value.
+
 Then restart the frontend so the entrypoint picks up the new values:
 
 ```bash
