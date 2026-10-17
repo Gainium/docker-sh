@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Password Reset Helper Script for Gainium Self-Hosted
 # Usage: ./resetPassword.sh <username> <newPassword>
@@ -20,6 +20,16 @@ if [ $# -lt 2 ]; then
     exit 1
 fi
 
+# `docker compose` (v2) on current installs, `docker-compose` on older ones.
+if docker compose version >/dev/null 2>&1; then
+    DC="docker compose"
+elif command -v docker-compose >/dev/null 2>&1; then
+    DC="docker-compose"
+else
+    echo "❌ Neither \"docker compose\" nor \"docker-compose\" is available."
+    exit 1
+fi
+
 USERNAME="$1"
 PASSWORD="$2"
 
@@ -29,7 +39,7 @@ echo "All existing sessions for this user will be signed out."
 echo ""
 
 # Run the CLI command in the container
-docker-compose run --rm cli-runner npm run cli:reset-password -- "$USERNAME" "$PASSWORD"
+$DC run --rm cli-runner npm run cli:reset-password -- "$USERNAME" "$PASSWORD"
 
 if [ $? -eq 0 ]; then
     echo ""

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Encryption Key Setup Helper for Gainium Self-Hosted
 #
@@ -14,12 +14,12 @@
 #
 # Usage: ./setupEncryptKey.sh [path-to-env-file]
 #
-# The key MUST live in the host .env, which is what docker compose reads and
-# passes to the containers. A key generated inside a container would be lost
-# on the next `docker compose down` or image upgrade, and every credential
-# encrypted under it would become permanently unreadable.
+# The generated key lives in the mongo volume, so it survives `docker compose
+# down` and upgrades; `docker compose down -v` deletes it along with the data.
+# A copy in .env is what lets you rebuild the installation from a database
+# backup.
 
-set -euo pipefail
+set -eu
 
 ENV_FILE="${1:-$(cd "$(dirname "$0")" && pwd)/.env}"
 
@@ -43,10 +43,19 @@ if ! command -v docker >/dev/null 2>&1; then
     echo "   already generated a key, and it needs docker for that."
     exit 1
 fi
+# `docker compose` (v2) on current installs, `docker-compose` on older ones.
+if docker compose version >/dev/null 2>&1; then
+    DC="docker compose"
+elif command -v docker-compose >/dev/null 2>&1; then
+    DC="docker-compose"
+else
+    echo "❌ Neither \"docker compose\" nor \"docker-compose\" is available."
+    exit 1
+fi
 
 # Ask secrets-init for the key in effect. --no-deps: read only, starts nothing
 # else. Pull progress goes to stderr; only ENCRYPT_KEY= is read from stdout.
-if ! SHOWN="$(cd "$(dirname "$0")" && docker compose --env-file "$ENV_FILE" run --rm --no-deps -T secrets-init show 2>/dev/null)"; then
+if ! SHOWN="$(cd "$(dirname "$0")" && $DC --env-file "$ENV_FILE" run --rm --no-deps -T secrets-init show 2>/dev/null)"; then
     echo "❌ Could not ask the installation for its key (is Docker running?)."
     echo "   Re-run once it is. Writing a new key without checking could lock out"
     echo "   credentials already stored under the generated one."

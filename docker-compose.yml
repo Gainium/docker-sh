@@ -39,8 +39,8 @@ services:
     user: "0:0"
     restart: 'no'
     environment:
-      - ENCRYPT_KEY=${ENCRYPT_KEY}
-      - JWT_SECRET=${JWT_SECRET}
+      - ENCRYPT_KEY=${ENCRYPT_KEY:-}
+      - JWT_SECRET=${JWT_SECRET:-}
     volumes:
       - 'mongo:/bitnami'
       - 'gainium-secrets:/gainium-secrets'
@@ -94,11 +94,11 @@ services:
     hostname: localhost
     environment:
       - MONGODB_ROOT_USER=root
-      - MONGODB_ROOT_PASSWORD=${MONGO_DB_PASSWORD}
-      - MONGODB_USERNAME=${MONGO_DB_USERNAME}
-      - MONGODB_PASSWORD=${MONGO_DB_PASSWORD}
-      - MONGODB_DATABASE=${MONGO_DB_NAME}
-      - MONGODB_PORT_NUMBER=${MONGO_DB_PORT}
+      - MONGODB_ROOT_PASSWORD=${MONGO_DB_PASSWORD:-password}
+      - MONGODB_USERNAME=${MONGO_DB_USERNAME:-user}
+      - MONGODB_PASSWORD=${MONGO_DB_PASSWORD:-password}
+      - MONGODB_DATABASE=${MONGO_DB_NAME:-gainium}
+      - MONGODB_PORT_NUMBER=${MONGO_DB_PORT:-27017}
     volumes:
       - 'mongo:/bitnami'
     depends_on:
@@ -107,7 +107,7 @@ services:
     healthcheck:
       test: [
         "CMD-SHELL",
-        "mongosh --host localhost --port ${MONGO_DB_PORT} --username ${MONGO_DB_USERNAME} --password ${MONGO_DB_PASSWORD} --authenticationDatabase ${MONGO_DB_NAME} --eval 'db.runCommand({ping: 1})' --quiet || exit 1"
+        "mongosh --host localhost --port ${MONGO_DB_PORT:-27017} --username ${MONGO_DB_USERNAME:-user} --password ${MONGO_DB_PASSWORD:-password} --authenticationDatabase ${MONGO_DB_NAME:-gainium} --eval 'db.runCommand({ping: 1})' --quiet || exit 1"
       ]
       interval: 30s
       timeout: 10s
@@ -121,8 +121,8 @@ services:
     environment:
       - REDIS_AOF_ENABLED=no
       - REDIS_RDB_POLICY='60#1'
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REDIS_MASTER_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-H2Ga1DB1alBg}
+      - REDIS_MASTER_PASSWORD=${REDIS_PASSWORD:-H2Ga1DB1alBg}
     command: /opt/bitnami/scripts/redis/run.sh --maxmemory 3gb --maxmemory-policy allkeys-lru --maxclients 100000
     privileged: true
     volumes:
@@ -130,7 +130,7 @@ services:
     healthcheck:
       test: [
         "CMD-SHELL",
-        "redis-cli -a ${REDIS_PASSWORD} ping | grep PONG || exit 1"
+        "redis-cli -a ${REDIS_PASSWORD:-H2Ga1DB1alBg} ping | grep PONG || exit 1"
       ]
       interval: 15s
       timeout: 5s
@@ -144,8 +144,8 @@ services:
     environment:
       - RABBITMQ_SECURE_PASSWORD=yes
       - RABBITMQ_MANAGEMENT_ALLOW_WEB_ACCESS=true
-      - RABBITMQ_USERNAME=${RABBIT_USER}
-      - RABBITMQ_PASSWORD=${RABBIT_PASSWORD}
+      - RABBITMQ_USERNAME=${RABBIT_USER:-gainium}
+      - RABBITMQ_PASSWORD=${RABBIT_PASSWORD:-bdo3nyVMX5l6}
       - RABBITMQ_DISK_FREE_RELATIVE_LIMIT=0.3
     volumes:
       - 'rabbitmq:/bitnami'
@@ -164,10 +164,10 @@ services:
     restart: 'unless-stopped'
     hostname: exchange-connector
     environment:
-      - COINBASEKEY=${COINBASEKEY}
-      - COINBASESECRET=${COINBASESECRET}
-      - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - COINBASEKEY=${COINBASEKEY:-}
+      - COINBASESECRET=${COINBASESECRET:-}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-H2Ga1DB1alBg}
       - ADMIN_CONFIG_ENABLED=${ADMIN_CONFIG_ENABLED:-true}
       - NODE_ENV=production
       - npm_config_loglevel=silent
@@ -187,15 +187,15 @@ services:
     restart: 'unless-stopped'
     hostname: paper-trading
     environment:
-      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
-      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
-      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
-      - MONGO_DB_NAME=${MONGO_DB_NAME}
-      - MONGO_DB_PORT=${MONGO_DB_PORT}
-      - MONGO_DB_HOST=${MONGO_DB_HOST}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REDIS_HOST=${REDIS_HOST}
-      - PRICEROLE=${PRICEROLE}
+      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL:-http://exchange-connector}
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME:-user}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD:-password}
+      - MONGO_DB_NAME=${MONGO_DB_NAME:-gainium}
+      - MONGO_DB_PORT=${MONGO_DB_PORT:-27017}
+      - MONGO_DB_HOST=${MONGO_DB_HOST:-mongo}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-H2Ga1DB1alBg}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - PRICEROLE=${PRICEROLE:-all}
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
@@ -227,36 +227,40 @@ services:
     <<: *with-secrets
     command: ["npm", "run", "server"]  # Override the default command
     ports:
-      - "${GRAPH_QL_PORT}:${GRAPH_QL_PORT}"
+      - "${GRAPH_QL_PORT:-7503}:${GRAPH_QL_PORT:-7503}"
     environment:
-      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
-      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
-      - MONGO_DB_NAME=${MONGO_DB_NAME}
-      - MONGO_DB_PORT=${MONGO_DB_PORT}
-      - MONGO_DB_HOST=${MONGO_DB_HOST}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REDIS_HOST=${REDIS_HOST}
-      - RABBIT_HOST=${RABBIT_HOST}
-      - RABBIT_USER=${RABBIT_USER}
-      - RABBIT_PASSWORD=${RABBIT_PASSWORD}
-      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
-      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL}
-      - GRAPH_QL_PORT=${GRAPH_QL_PORT}
-      - SERVER_HOST=${SERVER_HOST}
-      - BACKTEST_SERVICE_HOST=${BACKTEST_SERVICE_HOST}
-      - JWT_SECRET=${JWT_SECRET}
-      - ENCRYPT_KEY=${ENCRYPT_KEY}
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME:-user}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD:-password}
+      - MONGO_DB_NAME=${MONGO_DB_NAME:-gainium}
+      - MONGO_DB_PORT=${MONGO_DB_PORT:-27017}
+      - MONGO_DB_HOST=${MONGO_DB_HOST:-mongo}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-H2Ga1DB1alBg}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - RABBIT_HOST=${RABBIT_HOST:-rabbit}
+      - RABBIT_USER=${RABBIT_USER:-gainium}
+      - RABBIT_PASSWORD=${RABBIT_PASSWORD:-bdo3nyVMX5l6}
+      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL:-http://exchange-connector}
+      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL:-http://paper-trading}
+      - GRAPH_QL_PORT=${GRAPH_QL_PORT:-7503}
+      - SERVER_HOST=${SERVER_HOST:-http://localhost:7503}
+      - BACKTEST_SERVICE_HOST=${BACKTEST_SERVICE_HOST:-backtest}
+      - JWT_SECRET=${JWT_SECRET:-}
+      - ENCRYPT_KEY=${ENCRYPT_KEY:-}
       # Set to false to migrate stored credentials by hand instead — see
       # "Encryption key" in DEPLOYMENT.md. Only the api runs the backfill;
       # the other services share this image but must not race it.
       - ENCRYPT_KEY_AUTO_BACKFILL=${ENCRYPT_KEY_AUTO_BACKFILL:-true}
       - NODE_ENV=production
-      - CORS_ORIGIN=${CORS_ORIGIN}
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:7500}
+      # Requests through the dashboard's proxy arrive from the frontend
+      # container; trusting private-range hops lets the rate limits see the
+      # real client. Public addresses are never trusted.
+      - TRUST_PROXY=${TRUST_PROXY:-uniquelocal}
       - ADMIN_CONFIG_ENABLED=${ADMIN_CONFIG_ENABLED:-true}
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${GRAPH_QL_PORT}/health || exit 1"]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${GRAPH_QL_PORT:-7503}/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -280,13 +284,13 @@ services:
     hostname: user-update-connector
     command: ["npm", "run", "main"]  # Override the default command
     environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REDIS_HOST=${REDIS_HOST}
-      - RABBIT_HOST=${RABBIT_HOST}
-      - RABBIT_USER=${RABBIT_USER}
-      - RABBIT_PASSWORD=${RABBIT_PASSWORD}
-      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
-      - PAPER_WS=${PAPER_WS}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-H2Ga1DB1alBg}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - RABBIT_HOST=${RABBIT_HOST:-rabbit}
+      - RABBIT_USER=${RABBIT_USER:-gainium}
+      - RABBIT_PASSWORD=${RABBIT_PASSWORD:-bdo3nyVMX5l6}
+      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL:-http://exchange-connector}
+      - PAPER_WS=${PAPER_WS:-ws://paper-trading}
       - ADMIN_CONFIG_ENABLED=${ADMIN_CONFIG_ENABLED:-true}
       - NODE_ENV=production
       - npm_config_loglevel=silent
@@ -313,19 +317,19 @@ services:
     <<: *with-secrets
     command: ["npm", "run", "bots:dca"]  # Override the default command
     environment:
-      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
-      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
-      - MONGO_DB_NAME=${MONGO_DB_NAME}
-      - MONGO_DB_PORT=${MONGO_DB_PORT}
-      - MONGO_DB_HOST=${MONGO_DB_HOST}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REDIS_HOST=${REDIS_HOST}
-      - RABBIT_HOST=${RABBIT_HOST}
-      - RABBIT_USER=${RABBIT_USER}
-      - RABBIT_PASSWORD=${RABBIT_PASSWORD}
-      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
-      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL}
-      - ENCRYPT_KEY=${ENCRYPT_KEY}
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME:-user}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD:-password}
+      - MONGO_DB_NAME=${MONGO_DB_NAME:-gainium}
+      - MONGO_DB_PORT=${MONGO_DB_PORT:-27017}
+      - MONGO_DB_HOST=${MONGO_DB_HOST:-mongo}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-H2Ga1DB1alBg}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - RABBIT_HOST=${RABBIT_HOST:-rabbit}
+      - RABBIT_USER=${RABBIT_USER:-gainium}
+      - RABBIT_PASSWORD=${RABBIT_PASSWORD:-bdo3nyVMX5l6}
+      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL:-http://exchange-connector}
+      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL:-http://paper-trading}
+      - ENCRYPT_KEY=${ENCRYPT_KEY:-}
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
@@ -358,19 +362,19 @@ services:
     <<: *with-secrets
     command: ["npm", "run", "bots:grid"]  # Override the default command
     environment:
-      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
-      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
-      - MONGO_DB_NAME=${MONGO_DB_NAME}
-      - MONGO_DB_PORT=${MONGO_DB_PORT}
-      - MONGO_DB_HOST=${MONGO_DB_HOST}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REDIS_HOST=${REDIS_HOST}
-      - RABBIT_HOST=${RABBIT_HOST}
-      - RABBIT_USER=${RABBIT_USER}
-      - RABBIT_PASSWORD=${RABBIT_PASSWORD}
-      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
-      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL}
-      - ENCRYPT_KEY=${ENCRYPT_KEY}
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME:-user}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD:-password}
+      - MONGO_DB_NAME=${MONGO_DB_NAME:-gainium}
+      - MONGO_DB_PORT=${MONGO_DB_PORT:-27017}
+      - MONGO_DB_HOST=${MONGO_DB_HOST:-mongo}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-H2Ga1DB1alBg}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - RABBIT_HOST=${RABBIT_HOST:-rabbit}
+      - RABBIT_USER=${RABBIT_USER:-gainium}
+      - RABBIT_PASSWORD=${RABBIT_PASSWORD:-bdo3nyVMX5l6}
+      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL:-http://exchange-connector}
+      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL:-http://paper-trading}
+      - ENCRYPT_KEY=${ENCRYPT_KEY:-}
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
@@ -403,19 +407,19 @@ services:
     <<: *with-secrets
     command: ["npm", "run", "bots:combo"]  # Override the default command
     environment:
-      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
-      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
-      - MONGO_DB_NAME=${MONGO_DB_NAME}
-      - MONGO_DB_PORT=${MONGO_DB_PORT}
-      - MONGO_DB_HOST=${MONGO_DB_HOST}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REDIS_HOST=${REDIS_HOST}
-      - RABBIT_HOST=${RABBIT_HOST}
-      - RABBIT_USER=${RABBIT_USER}
-      - RABBIT_PASSWORD=${RABBIT_PASSWORD}
-      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
-      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL}
-      - ENCRYPT_KEY=${ENCRYPT_KEY}
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME:-user}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD:-password}
+      - MONGO_DB_NAME=${MONGO_DB_NAME:-gainium}
+      - MONGO_DB_PORT=${MONGO_DB_PORT:-27017}
+      - MONGO_DB_HOST=${MONGO_DB_HOST:-mongo}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-H2Ga1DB1alBg}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - RABBIT_HOST=${RABBIT_HOST:-rabbit}
+      - RABBIT_USER=${RABBIT_USER:-gainium}
+      - RABBIT_PASSWORD=${RABBIT_PASSWORD:-bdo3nyVMX5l6}
+      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL:-http://exchange-connector}
+      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL:-http://paper-trading}
+      - ENCRYPT_KEY=${ENCRYPT_KEY:-}
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
@@ -448,19 +452,19 @@ services:
     <<: *with-secrets
     command: ["npm", "run", "bots:hedge:combo"]  # Override the default command
     environment:
-      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
-      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
-      - MONGO_DB_NAME=${MONGO_DB_NAME}
-      - MONGO_DB_PORT=${MONGO_DB_PORT}
-      - MONGO_DB_HOST=${MONGO_DB_HOST}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REDIS_HOST=${REDIS_HOST}
-      - RABBIT_HOST=${RABBIT_HOST}
-      - RABBIT_USER=${RABBIT_USER}
-      - RABBIT_PASSWORD=${RABBIT_PASSWORD}
-      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
-      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL}
-      - ENCRYPT_KEY=${ENCRYPT_KEY}
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME:-user}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD:-password}
+      - MONGO_DB_NAME=${MONGO_DB_NAME:-gainium}
+      - MONGO_DB_PORT=${MONGO_DB_PORT:-27017}
+      - MONGO_DB_HOST=${MONGO_DB_HOST:-mongo}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-H2Ga1DB1alBg}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - RABBIT_HOST=${RABBIT_HOST:-rabbit}
+      - RABBIT_USER=${RABBIT_USER:-gainium}
+      - RABBIT_PASSWORD=${RABBIT_PASSWORD:-bdo3nyVMX5l6}
+      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL:-http://exchange-connector}
+      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL:-http://paper-trading}
+      - ENCRYPT_KEY=${ENCRYPT_KEY:-}
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
@@ -493,19 +497,19 @@ services:
     <<: *with-secrets
     command: ["npm", "run", "bots:hedge:dca"]  # Override the default command
     environment:
-      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
-      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
-      - MONGO_DB_NAME=${MONGO_DB_NAME}
-      - MONGO_DB_PORT=${MONGO_DB_PORT}
-      - MONGO_DB_HOST=${MONGO_DB_HOST}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REDIS_HOST=${REDIS_HOST}
-      - RABBIT_HOST=${RABBIT_HOST}
-      - RABBIT_USER=${RABBIT_USER}
-      - RABBIT_PASSWORD=${RABBIT_PASSWORD}
-      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
-      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL}
-      - ENCRYPT_KEY=${ENCRYPT_KEY}
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME:-user}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD:-password}
+      - MONGO_DB_NAME=${MONGO_DB_NAME:-gainium}
+      - MONGO_DB_PORT=${MONGO_DB_PORT:-27017}
+      - MONGO_DB_HOST=${MONGO_DB_HOST:-mongo}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-H2Ga1DB1alBg}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - RABBIT_HOST=${RABBIT_HOST:-rabbit}
+      - RABBIT_USER=${RABBIT_USER:-gainium}
+      - RABBIT_PASSWORD=${RABBIT_PASSWORD:-bdo3nyVMX5l6}
+      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL:-http://exchange-connector}
+      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL:-http://paper-trading}
+      - ENCRYPT_KEY=${ENCRYPT_KEY:-}
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
@@ -538,19 +542,19 @@ services:
     <<: *with-secrets
     command: ["npm", "run", "indicators"]  # Override the default command
     environment:
-      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
-      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
-      - MONGO_DB_NAME=${MONGO_DB_NAME}
-      - MONGO_DB_PORT=${MONGO_DB_PORT}
-      - MONGO_DB_HOST=${MONGO_DB_HOST}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REDIS_HOST=${REDIS_HOST}
-      - RABBIT_HOST=${RABBIT_HOST}
-      - RABBIT_USER=${RABBIT_USER}
-      - RABBIT_PASSWORD=${RABBIT_PASSWORD}
-      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
-      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL}
-      - ENCRYPT_KEY=${ENCRYPT_KEY}
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME:-user}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD:-password}
+      - MONGO_DB_NAME=${MONGO_DB_NAME:-gainium}
+      - MONGO_DB_PORT=${MONGO_DB_PORT:-27017}
+      - MONGO_DB_HOST=${MONGO_DB_HOST:-mongo}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-H2Ga1DB1alBg}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - RABBIT_HOST=${RABBIT_HOST:-rabbit}
+      - RABBIT_USER=${RABBIT_USER:-gainium}
+      - RABBIT_PASSWORD=${RABBIT_PASSWORD:-bdo3nyVMX5l6}
+      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL:-http://exchange-connector}
+      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL:-http://paper-trading}
+      - ENCRYPT_KEY=${ENCRYPT_KEY:-}
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
@@ -580,19 +584,19 @@ services:
     <<: *with-secrets
     command: ["npm", "run", "cron"]  # Override the default command
     environment:
-      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
-      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
-      - MONGO_DB_NAME=${MONGO_DB_NAME}
-      - MONGO_DB_PORT=${MONGO_DB_PORT}
-      - MONGO_DB_HOST=${MONGO_DB_HOST}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REDIS_HOST=${REDIS_HOST}
-      - RABBIT_HOST=${RABBIT_HOST}
-      - RABBIT_USER=${RABBIT_USER}
-      - RABBIT_PASSWORD=${RABBIT_PASSWORD}
-      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
-      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL}
-      - ENCRYPT_KEY=${ENCRYPT_KEY}
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME:-user}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD:-password}
+      - MONGO_DB_NAME=${MONGO_DB_NAME:-gainium}
+      - MONGO_DB_PORT=${MONGO_DB_PORT:-27017}
+      - MONGO_DB_HOST=${MONGO_DB_HOST:-mongo}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-H2Ga1DB1alBg}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - RABBIT_HOST=${RABBIT_HOST:-rabbit}
+      - RABBIT_USER=${RABBIT_USER:-gainium}
+      - RABBIT_PASSWORD=${RABBIT_PASSWORD:-bdo3nyVMX5l6}
+      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL:-http://exchange-connector}
+      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL:-http://paper-trading}
+      - ENCRYPT_KEY=${ENCRYPT_KEY:-}
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
@@ -629,19 +633,19 @@ services:
     # exchange. Set FF_ENABLED=false in .env to turn it off.
     command: ["npm", "run", "failsafe"]  # Override the default command
     environment:
-      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
-      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
-      - MONGO_DB_NAME=${MONGO_DB_NAME}
-      - MONGO_DB_PORT=${MONGO_DB_PORT}
-      - MONGO_DB_HOST=${MONGO_DB_HOST}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REDIS_HOST=${REDIS_HOST}
-      - RABBIT_HOST=${RABBIT_HOST}
-      - RABBIT_USER=${RABBIT_USER}
-      - RABBIT_PASSWORD=${RABBIT_PASSWORD}
-      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
-      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL}
-      - ENCRYPT_KEY=${ENCRYPT_KEY}
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME:-user}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD:-password}
+      - MONGO_DB_NAME=${MONGO_DB_NAME:-gainium}
+      - MONGO_DB_PORT=${MONGO_DB_PORT:-27017}
+      - MONGO_DB_HOST=${MONGO_DB_HOST:-mongo}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-H2Ga1DB1alBg}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - RABBIT_HOST=${RABBIT_HOST:-rabbit}
+      - RABBIT_USER=${RABBIT_USER:-gainium}
+      - RABBIT_PASSWORD=${RABBIT_PASSWORD:-bdo3nyVMX5l6}
+      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL:-http://exchange-connector}
+      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL:-http://paper-trading}
+      - ENCRYPT_KEY=${ENCRYPT_KEY:-}
       - FF_ENABLED=${FF_ENABLED:-true}
       - FF_SHADOW=false
       - NODE_ENV=production
@@ -674,17 +678,17 @@ services:
     <<: *with-secrets
     command: ["npm", "run", "stream"]  # Override the default command
     ports:
-      - "${WS_PORT}:${WS_PORT}"
+      - "${WS_PORT:-7502}:${WS_PORT:-7502}"
     environment:
-      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
-      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
-      - MONGO_DB_NAME=${MONGO_DB_NAME}
-      - MONGO_DB_PORT=${MONGO_DB_PORT}
-      - MONGO_DB_HOST=${MONGO_DB_HOST}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REDIS_HOST=${REDIS_HOST}
-      - WS_PORT=${WS_PORT}
-      - ENCRYPT_KEY=${ENCRYPT_KEY}
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME:-user}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD:-password}
+      - MONGO_DB_NAME=${MONGO_DB_NAME:-gainium}
+      - MONGO_DB_PORT=${MONGO_DB_PORT:-27017}
+      - MONGO_DB_HOST=${MONGO_DB_HOST:-mongo}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-H2Ga1DB1alBg}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - WS_PORT=${WS_PORT:-7502}
+      - ENCRYPT_KEY=${ENCRYPT_KEY:-}
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
@@ -712,29 +716,29 @@ services:
     user: "0:0"
     command: ["sh", "-c", "chown -R 1001:1001 /app/loaded-data-candles /app/user-files && npm run backtest"]  # Override the default command
     environment:
-      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
-      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
-      - MONGO_DB_NAME=${MONGO_DB_NAME}
-      - MONGO_DB_PORT=${MONGO_DB_PORT}
-      - MONGO_DB_HOST=${MONGO_DB_HOST}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REDIS_HOST=${REDIS_HOST}
-      - RABBIT_HOST=${RABBIT_HOST}
-      - RABBIT_USER=${RABBIT_USER}
-      - RABBIT_PASSWORD=${RABBIT_PASSWORD}
-      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
-      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL}
-      - BACKTEST_PORT=${BACKTEST_PORT}
-      - MAIN_SERVICE_HOST=${MAIN_SERVICE_HOST}
-      - ENCRYPT_KEY=${ENCRYPT_KEY}
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME:-user}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD:-password}
+      - MONGO_DB_NAME=${MONGO_DB_NAME:-gainium}
+      - MONGO_DB_PORT=${MONGO_DB_PORT:-27017}
+      - MONGO_DB_HOST=${MONGO_DB_HOST:-mongo}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-H2Ga1DB1alBg}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - RABBIT_HOST=${RABBIT_HOST:-rabbit}
+      - RABBIT_USER=${RABBIT_USER:-gainium}
+      - RABBIT_PASSWORD=${RABBIT_PASSWORD:-bdo3nyVMX5l6}
+      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL:-http://exchange-connector}
+      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL:-http://paper-trading}
+      - BACKTEST_PORT=${BACKTEST_PORT:-7515}
+      - MAIN_SERVICE_HOST=${MAIN_SERVICE_HOST:-api}
+      - ENCRYPT_KEY=${ENCRYPT_KEY:-}
       # Signs the worker's result callbacks to the api (src/backtest/utils/
       # token.ts). Without it the token is empty and the api refuses them.
-      - JWT_SECRET=${JWT_SECRET}
+      - JWT_SECRET=${JWT_SECRET:-}
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${BACKTEST_PORT}/health || exit 1"]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${BACKTEST_PORT:-7515}/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -762,24 +766,24 @@ services:
     hostname: price-connector
     command: ["npm", "run", "price"]  # Override the default command
     environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REDIS_HOST=${REDIS_HOST}
-      - RABBIT_HOST=${RABBIT_HOST}
-      - RABBIT_USER=${RABBIT_USER}
-      - RABBIT_PASSWORD=${RABBIT_PASSWORD}
-      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
-      - COINBASE_API_KEY=${COINBASEKEY}
-      - COINBASE_API_SECRET=${COINBASESECRET}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-H2Ga1DB1alBg}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - RABBIT_HOST=${RABBIT_HOST:-rabbit}
+      - RABBIT_USER=${RABBIT_USER:-gainium}
+      - RABBIT_PASSWORD=${RABBIT_PASSWORD:-bdo3nyVMX5l6}
+      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL:-http://exchange-connector}
+      - COINBASE_API_KEY=${COINBASEKEY:-}
+      - COINBASE_API_SECRET=${COINBASESECRET:-}
       # Self-hosted runs a SINGLE price connector, so it must run the "all"
       # role: it produces BOTH the candle streams (charts/indicators) AND the
       # `trade@{sym}@{exchange}` ticker feed that paper-trading fills orders
-      # from. Hardcoded (not ${PRICEROLE}) so existing installs whose .env
+      # from. Hardcoded (not ${PRICEROLE:-all}) so existing installs whose .env
       # still says `candle` are fixed on the next `up` — a candle-only feed
       # silently starves paper/live fills (esp. ticker-only exchanges like
       # Coinbase, which have no candle producer). Split roles only if you add
       # a second connector for scale.
       - PRICEROLE=all
-      - PRICE_CONNECTOR_EXCHANGES=${PRICE_CONNECTOR_EXCHANGES}
+      - PRICE_CONNECTOR_EXCHANGES=${PRICE_CONNECTOR_EXCHANGES:-binance,binanceus,kucoin,bybit,okx,bitget,coinbase}
       - ADMIN_CONFIG_ENABLED=${ADMIN_CONFIG_ENABLED:-true}
       - NODE_ENV=production
       - npm_config_loglevel=silent
@@ -809,14 +813,14 @@ services:
     <<: *with-secrets
     image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.129.2}
     environment:
-      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
-      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
-      - MONGO_DB_NAME=${MONGO_DB_NAME}
-      - MONGO_DB_PORT=${MONGO_DB_PORT}
-      - MONGO_DB_HOST=${MONGO_DB_HOST}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REDIS_HOST=${REDIS_HOST}
-      - ENCRYPT_KEY=${ENCRYPT_KEY}
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME:-user}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD:-password}
+      - MONGO_DB_NAME=${MONGO_DB_NAME:-gainium}
+      - MONGO_DB_PORT=${MONGO_DB_PORT:-27017}
+      - MONGO_DB_HOST=${MONGO_DB_HOST:-mongo}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-H2Ga1DB1alBg}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - ENCRYPT_KEY=${ENCRYPT_KEY:-}
       - NODE_ENV=production
     depends_on:
       mongo:
@@ -831,17 +835,23 @@ services:
     restart: 'unless-stopped'
     hostname: frontend
     ports:
-      - ${PORT}:${PORT}
+      - ${PORT:-7500}:${PORT:-7500}
     environment:
-      - PORT=${PORT}
-      - VITE_API_ENDPOINT=${VITE_API_ENDPOINT:-http://localhost:${GRAPH_QL_PORT}}
-      - VITE_WS_URL=${VITE_WS_URL:-ws://localhost:${WS_PORT}}
-      # Admin API URL the dashboard reaches for the /admin page. Sh-only
-      # — cloud builds leave it unset and the page renders a "not
-      # configured" state.
-      - VITE_ADMIN_API_URL=${VITE_ADMIN_API_URL:-http://localhost:${ADMIN_PORT:-7507}}
+      - PORT=${PORT:-7500}
+      # Leave these three empty (the default): the frontend then proxies the
+      # api, stream and admin-sh itself, and the dashboard works on whatever
+      # address you open it with — LAN IP, localhost, Tailscale, a domain,
+      # https — with nothing to configure. Set one only to send the browser
+      # somewhere else for it.
+      - VITE_API_ENDPOINT=${VITE_API_ENDPOINT:-}
+      - VITE_WS_URL=${VITE_WS_URL:-}
+      - VITE_ADMIN_API_URL=${VITE_ADMIN_API_URL:-}
+      # Where that proxy finds each service inside this stack.
+      - GAINIUM_API_UPSTREAM=api:${GRAPH_QL_PORT:-7503}
+      - GAINIUM_WS_UPSTREAM=stream:${WS_PORT:-7502}
+      - GAINIUM_ADMIN_UPSTREAM=admin-sh:${ADMIN_PORT:-7507}
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${PORT}/health || exit 1"]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${PORT:-7500}/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -890,16 +900,16 @@ services:
       - "${ADMIN_PORT:-7507}:${ADMIN_PORT:-7507}"
     environment:
       - PORT=${ADMIN_PORT:-7507}
-      - JWT_SECRET=${JWT_SECRET}
-      - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET:-}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-H2Ga1DB1alBg}
       - COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-gainium-app}
-      - CORS_ORIGIN=${CORS_ORIGIN}
-      - PRICE_CONNECTOR_EXCHANGES=${PRICE_CONNECTOR_EXCHANGES}
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:7500}
+      - PRICE_CONNECTOR_EXCHANGES=${PRICE_CONNECTOR_EXCHANGES:-binance,binanceus,kucoin,bybit,okx,bitget,coinbase}
       - DOCKER_REGISTRY_HOST=${DOCKER_REGISTRY_HOST:-docker.gainium.io}
-      - DOCKER_REGISTRY_USER=${DOCKER_REGISTRY_USER}
-      - DOCKER_REGISTRY_PASS=${DOCKER_REGISTRY_PASS}
-      - COMPOSE_DIR_HOST_PATH=${COMPOSE_DIR_HOST_PATH}
+      - DOCKER_REGISTRY_USER=${DOCKER_REGISTRY_USER:-}
+      - DOCKER_REGISTRY_PASS=${DOCKER_REGISTRY_PASS:-}
+      - COMPOSE_DIR_HOST_PATH=${COMPOSE_DIR_HOST_PATH:-}
       - UPGRADE_HELPER_IMAGE=${UPGRADE_HELPER_IMAGE:-docker:27-cli}
       # Lives inside the project-dir bind mount above — admin-sh
       # creates the file the first time an upgrade writes to it.

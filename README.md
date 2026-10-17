@@ -23,48 +23,42 @@ Before starting, ensure you have:
 
 ## ⚡ Quick Start
 
-### 1. Clone and Navigate
+You need Docker with the Compose plugin. Nothing else: no git, bash, openssl
+or Node, and no particular folder.
+
+### Option A: paste one file (Portainer stacks and similar)
+
+Paste [`docker-compose.yml`](docker-compose.yml) into the "stack" / "compose"
+screen **exactly as it is** and start it. It runs without a `.env`;
+every setting has a working default. Do not have it rewritten by an AI first:
+almost every broken installation we have seen started that way.
+
+### Option B: from a terminal
 ```bash
-# Clone the repository
+# Get the files: git clone, or download the ZIP from GitHub and unpack it
 git clone https://github.com/Gainium/docker-sh.git
-
-# Navigate into the cloned directory
 cd docker-sh
-```
 
-### 2. Setup Environment
-```bash
-# Copy the sample environment file
+# Optional: your own settings (Coinbase keys, ports, ...). Without a .env the
+# defaults are used.
 cp .env.sample .env
 
-# Generate this installation's encryption key (see below — back it up)
-./setupEncryptKey.sh
-
-# Edit the .env file with your configuration
-nano .env  # or use your preferred editor
+docker compose up -d
 ```
 
-### 3. Configure Variables (Optional)
-Edit your `.env` file and configure variables as needed:
-```bash
-# Coinbase API credentials (only required if using Coinbase)
-COINBASEKEY=your_coinbase_api_key
-COINBASESECRET=your_coinbase_secret
-```
+### Then
+1. Give it a few minutes on the first start, then open
+   **`http://<this machine's address>:7500`** from any device: a LAN IP,
+   `localhost`, a Tailscale name or a domain all work, with nothing to
+   configure.
+2. **Back up your encryption key.** The first start generated one for this
+   installation. With a terminal, `./setupEncryptKey.sh` copies it into `.env`
+   (keep a copy of that file somewhere else), or print it with
+   `docker compose run --rm --no-deps secrets-init show`. See
+   [Encryption key](#-encryption-key-encrypt_key).
 
-### 4. Start All Services
-```bash
-# Start all services in background
-docker-compose up -d
-
-# View logs (optional)
-docker-compose logs -f
-```
-
-### 5. Verify Setup
-- **API**: http://localhost:7503 (GraphQL endpoint)
-- **WebSocket**: ws://localhost:7502 (Real-time data)
-- **Frontend**: http://localhost:7500 (Web dashboard)
+Something not starting? `docker compose ps` shows which service is unhealthy,
+and `docker compose logs --tail 50 <service>` shows why.
 
 ### 6. Create your account (license key)
 The sign-up screen asks for a license key. It's free:
@@ -222,39 +216,26 @@ PRICE_CONNECTOR_EXCHANGES=binance,binanceus,coinbase,okx
 - Invalid exchange names will be ignored
 - This setting affects only the websocket price connector service
 
-### Frontend Runtime Configuration
+### Dashboard address (`VITE_*`)
 
-The frontend service now supports runtime environment variables for server and WebSocket configuration:
+The dashboard runs in the browser, so it has to reach the api, the realtime
+stream and the admin page *as the browser sees them*. By default the
+`frontend` container proxies all three under its own address (`/api`,
+`/socket.io`, `/admin-api`), so whatever address you open the dashboard with
+just works, including https behind a reverse proxy or tunnel (it honours
+`X-Forwarded-Proto`). Only port `PORT` (7500) has to be reachable for the
+dashboard; `GRAPH_QL_PORT` (7503) only for TradingView/webhook calls.
+
+To send the browser somewhere else for one of them instead, set it in `.env`:
 
 ```bash
-# Default values (for local development)
-NEXT_PUBLIC_SERVER=http://localhost:7503
-NEXT_PUBLIC_WS=ws://localhost:7502
-
-# For remote deployment, set these to your domain/IP
-NEXT_PUBLIC_SERVER=https://api.yourdomain.com
-NEXT_PUBLIC_WS=wss://ws.yourdomain.com
+VITE_API_ENDPOINT=https://api.example.com
+VITE_WS_URL=wss://ws.example.com
+VITE_ADMIN_API_URL=https://admin.example.com
 ```
 
-**Important Notes:**
-- These variables are set at **container runtime**, not build time
-- Default values work for local development
-- For production deployment, update these values to match your server
-- **Container must be recreated** when environment variables are changed
-
-**Example Usage:**
-```bash
-# Local development (uses defaults)
-docker-compose up -d
-
-# Production deployment - update docker-compose.yml:
-# services:
-#   frontend:
-#     environment:
-#       - NEXT_PUBLIC_SERVER=https://api.mycompany.com
-#       - NEXT_PUBLIC_WS=wss://ws.mycompany.com
-```
-
+Then add that dashboard address to `CORS_ORIGIN`, and recreate the frontend
+(`docker compose up -d frontend`).
 
 ## 🏗️ Services Overview
 
@@ -312,17 +293,17 @@ The following images are used from the registry:
 
 ```bash
 # Start all services
-docker-compose up -d
+docker compose up -d
 
 # Start specific services
-docker-compose up -d mongo redis rabbit
-docker-compose up -d api frontend
+docker compose up -d mongo redis rabbit
+docker compose up -d api frontend
 
 # Start with build (rebuild images)
-docker-compose up -d --build
+docker compose up -d --build
 
 # Start and view logs
-docker-compose up
+docker compose up
 ```
 
 ### Updating Images
@@ -330,7 +311,7 @@ docker-compose up
 > **`git pull` first — it is part of the upgrade, not optional.** The image
 > tags are defaults in the tracked `docker-compose.yml`
 > (`${MAIN_APP_VERSION:-…}`), and new releases land by bumping them in this
-> repository. On a stale checkout `docker-compose pull` succeeds while
+> repository. On a stale checkout `docker compose pull` succeeds while
 > re-fetching the tags you already run, so nothing updates. Alternatively use
 > the dashboard's **Admin → Services** tab, which pins registry versions in
 > `.versions.env` and needs no `git pull`.
@@ -338,10 +319,10 @@ docker-compose up
 ```bash
 # Update and restart services (the full upgrade)
 git pull
-docker-compose pull && docker-compose up -d
+docker compose pull && docker compose up -d
 
 # Pull latest images from registry only
-docker-compose pull
+docker compose pull
 
 # Pull specific image
 docker pull docker.gainium.io/gainium/main-app:1.0.0
@@ -355,36 +336,36 @@ docker compose config --images
 
 ```bash
 # Stop all services
-docker-compose down
+docker compose down
 
 # Stop and remove volumes (⚠️ deletes database data)
-docker-compose down -v
+docker compose down -v
 
 # Restart specific service
-docker-compose restart api
-docker-compose restart frontend
+docker compose restart api
+docker compose restart frontend
 
 # Scale a service (if supported)
-docker-compose up -d --scale bots-dca=2
+docker compose up -d --scale bots-dca=2
 ```
 
 ### Monitoring and Debugging
 
 ```bash
 # View logs for all services
-docker-compose logs -f
+docker compose logs -f
 
 # View logs for specific service
-docker-compose logs -f api
-docker-compose logs -f frontend
-docker-compose logs -f mongo
+docker compose logs -f api
+docker compose logs -f frontend
+docker compose logs -f mongo
 
 # View service status
-docker-compose ps
+docker compose ps
 
 # Execute command in running container
-docker-compose exec api bash
-docker-compose exec mongo mongosh
+docker compose exec api bash
+docker compose exec mongo mongosh
 
 # View resource usage
 docker stats
@@ -395,8 +376,8 @@ docker stats
 ```bash
 # Update images (git pull first — see "Updating Images" above)
 git pull
-docker-compose pull
-docker-compose up -d
+docker compose pull
+docker compose up -d
 
 # Clean up unused resources
 docker system prune
@@ -405,7 +386,7 @@ docker system prune
 docker images | grep docker.gainium.io | awk '{print $3}' | xargs docker rmi
 
 # Reset everything (⚠️ deletes all data)
-docker-compose down -v --rmi all
+docker compose down -v --rmi all
 ```
 
 ### Password Reset
@@ -423,7 +404,7 @@ To reset a user's password from the command line:
 ./resetPassword.sh <username> <newPassword>
 
 # Or using Docker Compose directly
-docker-compose run --rm cli-runner npm run cli:reset-password -- <username> <newPassword>
+docker compose run --rm cli-runner npm run cli:reset-password -- <username> <newPassword>
 ```
 
 **Password Requirements:** Minimum 6 characters with uppercase, lowercase, and a digit.
@@ -469,7 +450,7 @@ account may be compromised, the intruder's session must not survive the reset.
 ```bash
 # Error: pull access denied or image not found
 # Solution: Check image names and tags in docker-compose.yml
-docker-compose pull  # Pull all required images
+docker compose pull  # Pull all required images
 ```
 
 #### 2. Service Won't Start - Port Already in Use
@@ -482,9 +463,9 @@ lsof -i :7503
 #### 3. Database Connection Issues
 ```bash
 # Check if MongoDB is running
-docker-compose logs mongo
+docker compose logs mongo
 # Reset database
-docker-compose restart mongo
+docker compose restart mongo
 ```
 
 #### 4. Out of Memory Errors
@@ -511,7 +492,7 @@ docker stats
 2. Go to Settings → General
 3. Check "Use Rosetta for x86/amd64 emulation on Apple Silicon"
 4. Restart Docker Desktop
-5. Run: `docker-compose down && docker-compose up -d`
+5. Run: `docker compose down && docker compose up -d`
 
 **Option 2: Enable Docker experimental features**
 ```bash
@@ -534,14 +515,14 @@ docker pull --platform linux/arm64 bitnami/rabbitmq:latest
 **Verification**:
 ```bash
 # Check if all services are running properly
-docker-compose ps
+docker compose ps
 
 # Check logs for any platform-related errors
-docker-compose logs | grep -i "platform\|arch\|format"
+docker compose logs | grep -i "platform\|arch\|format"
 
 # Test database connections
-docker-compose exec mongo mongosh --version
-docker-compose exec redis redis-cli ping
+docker compose exec mongo mongosh --version
+docker compose exec redis redis-cli ping
 ```
 
 #### 6. Docker Registry Timeout Issues
@@ -557,10 +538,10 @@ This is typically a network timeout issue when pulling images from the Docker re
 
 ```bash
 # Retry pulling images
-docker-compose pull
+docker compose pull
 
 # If pull succeeds, restart the services
-docker-compose up -d
+docker compose up -d
 
 # Alternative: Pull specific image that failed
 docker pull docker.gainium.io/gainium/main-app:1.0.0
@@ -572,12 +553,12 @@ docker pull docker.gainium.io/gainium/main-app:1.0.0
 
 1. **Check service status:**
    ```bash
-   docker-compose ps
+   docker compose ps
    ```
 
 2. **View detailed logs:**
    ```bash
-   docker-compose logs serviceName
+   docker compose logs serviceName
    ```
 
 3. **Test connectivity:**
@@ -591,7 +572,7 @@ docker pull docker.gainium.io/gainium/main-app:1.0.0
 
 4. **Inspect containers:**
    ```bash
-   docker-compose exec api bash
+   docker compose exec api bash
    ```
 
 ## � Advanced Configuration
@@ -608,7 +589,7 @@ cp .env.sample .env.development
 cp .env.sample .env.production
 
 # Use specific environment
-docker-compose --env-file .env.production up -d
+docker compose --env-file .env.production up -d
 ```
 
 
@@ -631,7 +612,7 @@ Add health checks to monitor service status:
 
 ```bash
 # Check all services health
-docker-compose ps
+docker compose ps
 ```
 
 ## 📊 Monitoring
@@ -648,7 +629,7 @@ docker-compose ps
 
 ```bash
 # Rotate logs to prevent disk space issues
-docker-compose logs --no-log-prefix api > api.log 2>&1
+docker compose logs --no-log-prefix api > api.log 2>&1
 ```
 
 ## 📝 Important Notes
@@ -663,11 +644,11 @@ docker-compose logs --no-log-prefix api > api.log 2>&1
 If you encounter issues:
 
 1. Check this README's troubleshooting section
-2. View service logs: `docker-compose logs serviceName`
+2. View service logs: `docker compose logs serviceName`
 3. Check Docker resources: `docker stats`
 4. Verify environment configuration: `cat .env`
 
 For additional help, contact the Gainium development team with:
 - Your `.env` file (with secrets redacted)
 - Service logs showing the error
-- Output of `docker-compose ps`
+- Output of `docker compose ps`
