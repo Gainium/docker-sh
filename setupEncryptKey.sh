@@ -2,9 +2,15 @@
 
 # Encryption Key Setup Helper for Gainium Self-Hosted
 #
-# Generates the per-installation ENCRYPT_KEY used to encrypt the exchange API
-# credentials your users store, and writes it into the .env file next to this
-# script. Safe to re-run: an existing key is never overwritten.
+# Writes the per-installation ENCRYPT_KEY used to encrypt the exchange API
+# credentials your users store into the .env file next to this script, so the
+# .env doubles as your backup of it. Safe to re-run: an existing key is never
+# overwritten.
+#
+# A new installation generates its key on first boot (the secrets-init
+# service). If this one already has, that key is copied here. Writing a
+# different one instead would leave the credentials stored under the generated
+# key unreadable. Only an installation that has none gets a fresh key.
 #
 # Usage: ./setupEncryptKey.sh [path-to-env-file]
 #
@@ -32,13 +38,33 @@ if grep -Eq '^[[:space:]]*ENCRYPT_KEY=.+' "$ENV_FILE"; then
     exit 0
 fi
 
-if ! command -v openssl >/dev/null 2>&1; then
-    echo "❌ openssl not found. Generate a key another way and add it manually:"
-    echo "   ENCRYPT_KEY=<64 hex characters>"
+if ! command -v docker >/dev/null 2>&1; then
+    echo "❌ docker not found. This script has to ask the installation whether it"
+    echo "   already generated a key, and it needs docker for that."
     exit 1
 fi
 
-KEY="$(openssl rand -hex 32)"
+# Ask secrets-init for the key in effect. --no-deps: read only, starts nothing
+# else. Pull progress goes to stderr; only ENCRYPT_KEY= is read from stdout.
+if ! SHOWN="$(cd "$(dirname "$0")" && docker compose --env-file "$ENV_FILE" run --rm --no-deps -T secrets-init show 2>/dev/null)"; then
+    echo "❌ Could not ask the installation for its key (is Docker running?)."
+    echo "   Re-run once it is. Writing a new key without checking could lock out"
+    echo "   credentials already stored under the generated one."
+    exit 1
+fi
+KEY="$(printf '%s\n' "$SHOWN" | sed -n 's/^ENCRYPT_KEY=//p' | head -n 1)"
+
+if [ -n "$KEY" ]; then
+    SOURCE="Copied the key this installation generated on first boot into"
+else
+    if ! command -v openssl >/dev/null 2>&1; then
+        echo "❌ openssl not found. Generate a key another way and add it manually:"
+        echo "   ENCRYPT_KEY=<64 hex characters>"
+        exit 1
+    fi
+    KEY="$(openssl rand -hex 32)"
+    SOURCE="Generated a new ENCRYPT_KEY and wrote it to"
+fi
 
 # Replace an existing empty `ENCRYPT_KEY=` line if present (that is what
 # .env.sample ships), otherwise append. Written via a temp file + mv so an
@@ -64,7 +90,7 @@ chmod 600 "$TMP_FILE"
 mv "$TMP_FILE" "$ENV_FILE"
 trap - EXIT
 
-echo "🔐 Generated a new ENCRYPT_KEY and wrote it to $ENV_FILE"
+echo "🔐 $SOURCE $ENV_FILE"
 echo ""
 echo "⚠️  Back up this file now, somewhere outside this host."
 echo "    If the key is lost, the exchange API credentials stored in your"

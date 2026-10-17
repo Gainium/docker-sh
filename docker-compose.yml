@@ -1,9 +1,92 @@
+# Services that need ENCRYPT_KEY or JWT_SECRET merge this in. It loads the
+# values secrets-init generated (see below) before handing off to the image's
+# own entrypoint. A value set in .env always wins: the file only fills in
+# variables that are empty or unset.
+x-with-secrets: &with-secrets
+  entrypoint: ["/bin/sh", "-c", 'if [ -r /gainium-secrets/secrets.env ]; then . /gainium-secrets/secrets.env; fi; exec docker-entrypoint.sh "$$@"', "--"]
+  volumes:
+    - 'gainium-secrets:/gainium-secrets:ro'
+
 services:
 
   # =============================================================================
   # INFRASTRUCTURE SERVICES
   # =============================================================================
-  
+
+  # Generates this installation's ENCRYPT_KEY and JWT_SECRET on first boot, so
+  # a new installation never runs on the build's shared fallback key or the
+  # public sample JWT secret.
+  #
+  # - Only on a NEW installation, i.e. while the mongo volume holds no data
+  #   yet. An existing installation is never given a new key: that would
+  #   re-encrypt its stored exchange credentials under a key nobody has
+  #   backed up. Existing installations keep using .env exactly as before.
+  # - The values are kept inside the mongo volume, next to the data they
+  #   protect, so the key and the credentials encrypted under it are kept or
+  #   lost together. They are copied to the gainium-secrets volume on every
+  #   boot for the services to read.
+  # - .env wins. Set ENCRYPT_KEY / JWT_SECRET there and the generated values
+  #   are ignored.
+  #
+  # Uses the mongo image so that, on a new installation, the first mount of
+  # the mongo volume initialises it exactly as mongo itself would.
+  #
+  # Back the key up:  ./setupEncryptKey.sh   (copies it into .env)
+  # or print it:      docker compose run --rm --no-deps secrets-init show
+  secrets-init:
+    platform: linux/amd64
+    image: 'bitnamilegacy/mongodb:latest'
+    user: "0:0"
+    restart: 'no'
+    environment:
+      - ENCRYPT_KEY=${ENCRYPT_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+    volumes:
+      - 'mongo:/bitnami'
+      - 'gainium-secrets:/gainium-secrets'
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        stored=/bitnami/gainium/secrets.env
+        shared=/gainium-secrets/secrets.env
+
+        if [ "$${1:-}" = show ]; then
+          # Effective values after .env precedence, for backing up.
+          if [ -r "$$stored" ]; then . "$$stored"; fi
+          echo "ENCRYPT_KEY=$${ENCRYPT_KEY:-}"
+          echo "JWT_SECRET=$${JWT_SECRET:-}"
+          exit 0
+        fi
+
+        if [ ! -f "$$stored" ]; then
+          if [ -e /bitnami/mongodb/data/db/WiredTiger ]; then
+            echo "[secrets-init] existing installation: nothing generated, .env stays in charge"
+            : > "$$shared" 2>/dev/null || true
+            exit 0
+          fi
+          set -eu
+          gen() { head -c 32 /dev/urandom | od -An -tx1 | tr -d ' \n'; }
+          mkdir -p /bitnami/gainium
+          chmod 700 /bitnami/gainium
+          {
+            # A value already set in .env is stored as is, so removing it
+            # from .env later cannot switch the installation to another key.
+            printf ': "$${ENCRYPT_KEY:=%s}"; export ENCRYPT_KEY\n' "$${ENCRYPT_KEY:-$$(gen)}"
+            printf ': "$${JWT_SECRET:=%s}"; export JWT_SECRET\n' "$${JWT_SECRET:-$$(gen)}"
+          } > "$$stored.tmp"
+          chmod 600 "$$stored.tmp"
+          mv "$$stored.tmp" "$$stored"
+          echo "[secrets-init] new installation: ENCRYPT_KEY and JWT_SECRET stored."
+          echo "[secrets-init] Back the key up: ./setupEncryptKey.sh, or docker compose run --rm --no-deps secrets-init show"
+        fi
+
+        set -eu
+        cp "$$stored" "$$shared.tmp"
+        chmod 644 "$$shared.tmp"
+        mv "$$shared.tmp" "$$shared"
+      - secrets-init
+
   mongo:
     platform: linux/amd64
     restart: 'unless-stopped'
@@ -18,6 +101,9 @@ services:
       - MONGODB_PORT_NUMBER=${MONGO_DB_PORT}
     volumes:
       - 'mongo:/bitnami'
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
     healthcheck:
       test: [
         "CMD-SHELL",
@@ -138,6 +224,7 @@ services:
     image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.129.2}
     restart: 'unless-stopped'
     hostname: api
+    <<: *with-secrets
     command: ["npm", "run", "server"]  # Override the default command
     ports:
       - "${GRAPH_QL_PORT}:${GRAPH_QL_PORT}"
@@ -223,6 +310,7 @@ services:
     image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.129.2}
     restart: 'unless-stopped'
     hostname: bots-dca
+    <<: *with-secrets
     command: ["npm", "run", "bots:dca"]  # Override the default command
     environment:
       - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
@@ -267,6 +355,7 @@ services:
     image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.129.2}
     restart: 'unless-stopped'
     hostname: bots-grid
+    <<: *with-secrets
     command: ["npm", "run", "bots:grid"]  # Override the default command
     environment:
       - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
@@ -311,6 +400,7 @@ services:
     image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.129.2}
     restart: 'unless-stopped'
     hostname: bots-combo
+    <<: *with-secrets
     command: ["npm", "run", "bots:combo"]  # Override the default command
     environment:
       - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
@@ -355,6 +445,7 @@ services:
     image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.129.2}
     restart: 'unless-stopped'
     hostname: bots-hedge-combo
+    <<: *with-secrets
     command: ["npm", "run", "bots:hedge:combo"]  # Override the default command
     environment:
       - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
@@ -399,6 +490,7 @@ services:
     image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.129.2}
     restart: 'unless-stopped'
     hostname: bots-hedge-dca
+    <<: *with-secrets
     command: ["npm", "run", "bots:hedge:dca"]  # Override the default command
     environment:
       - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
@@ -443,6 +535,7 @@ services:
     image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.129.2}
     restart: 'unless-stopped'
     hostname: indicators
+    <<: *with-secrets
     command: ["npm", "run", "indicators"]  # Override the default command
     environment:
       - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
@@ -484,6 +577,7 @@ services:
     image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.129.2}
     restart: 'unless-stopped'
     hostname: cron
+    <<: *with-secrets
     command: ["npm", "run", "cron"]  # Override the default command
     environment:
       - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
@@ -526,6 +620,7 @@ services:
     image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.129.2}
     restart: 'unless-stopped'
     hostname: fill-failsafe
+    <<: *with-secrets
     # Missed-fill failsafe. A live bot learns that a resting limit order filled
     # from the exchange's user stream; if that event is lost the bot keeps
     # waiting (a grid stops shifting, a DCA deal stops averaging). This watches
@@ -576,6 +671,7 @@ services:
     image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.129.2}
     restart: 'unless-stopped'
     hostname: stream
+    <<: *with-secrets
     command: ["npm", "run", "stream"]  # Override the default command
     ports:
       - "${WS_PORT}:${WS_PORT}"
@@ -612,6 +708,7 @@ services:
     image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.129.2}
     restart: 'unless-stopped'
     hostname: backtest
+    <<: *with-secrets
     user: "0:0"
     command: ["sh", "-c", "chown -R 1001:1001 /app/loaded-data-candles /app/user-files && npm run backtest"]  # Override the default command
     environment:
@@ -630,6 +727,9 @@ services:
       - BACKTEST_PORT=${BACKTEST_PORT}
       - MAIN_SERVICE_HOST=${MAIN_SERVICE_HOST}
       - ENCRYPT_KEY=${ENCRYPT_KEY}
+      # Signs the worker's result callbacks to the api (src/backtest/utils/
+      # token.ts). Without it the token is empty and the api refuses them.
+      - JWT_SECRET=${JWT_SECRET}
       - NODE_ENV=production
       - npm_config_loglevel=silent
       - npm_config_update_notifier=false
@@ -653,6 +753,7 @@ services:
     volumes:
       - 'backtest-candles:/app/loaded-data-candles'
       - 'backtest-files:/app/user-files'
+      - 'gainium-secrets:/gainium-secrets:ro'
 
   # Price connector uses the same websocket-connector image
   price-connector:
@@ -705,6 +806,7 @@ services:
   # image's default server, which exits 1 and shows as a failed container.
   cli-runner:
     profiles: ["cli"]
+    <<: *with-secrets
     image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.129.2}
     environment:
       - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
@@ -774,6 +876,9 @@ services:
     image: docker.gainium.io/gainium/admin-sh:${ADMIN_SH_VERSION:-1.4.4}
     restart: 'unless-stopped'
     hostname: admin-sh
+    <<: *with-secrets
+    # Same as the image's default CMD, which the entrypoint above clears.
+    command: ["sh", "-c", "npm_config_loglevel=silent npm_config_logfile=/dev/null npm run $${START_CMD}"]
     # Run as root inside the container so we can read /var/run/docker
     # .sock without juggling host docker-group gids (they differ per
     # OS — 999 on most Linux, varies on macOS Desktop). admin-sh
@@ -812,6 +917,7 @@ services:
       # (root-on-host equivalent), so additional rw access to this
       # directory is a small marginal exposure.
       - .:/workspace
+      - 'gainium-secrets:/gainium-secrets:ro'
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${ADMIN_PORT:-7507}/health || exit 1"]
       interval: 30s
@@ -819,6 +925,8 @@ services:
       retries: 3
       start_period: 10s
     depends_on:
+      secrets-init:
+        condition: service_completed_successfully
       redis:
         condition: service_healthy
 
@@ -835,4 +943,6 @@ volumes:
   backtest-candles:
     driver: local
   backtest-files:
+    driver: local
+  gainium-secrets:
     driver: local

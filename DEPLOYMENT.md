@@ -71,7 +71,7 @@ Edit `.env`. The defaults are sane for a single-host localhost install
 | Variable | What it is | When to change |
 |---|---|---|
 | `MONGO_DB_PASSWORD`, `REDIS_PASSWORD`, `RABBIT_PASSWORD`, `JWT_SECRET` | Service credentials | **Always rotate from the defaults** before exposing to anything but localhost |
-| `ENCRYPT_KEY` | Encrypts the exchange API credentials your users store | **Set it before you boot** — run `./setupEncryptKey.sh`. Back it up; it cannot be recovered. See [Encryption key](#encryption-key) |
+| `ENCRYPT_KEY` | Encrypts the exchange API credentials your users store | Generated on first boot of a new installation; `./setupEncryptKey.sh` copies it into `.env` (or sets one before the first boot). Back it up; it cannot be recovered. See [Encryption key](#encryption-key) |
 | `COINBASEKEY`, `COINBASESECRET` | Coinbase Pro API creds | Only if you'll use Coinbase |
 | `PRICE_CONNECTOR_EXCHANGES` | Initial enabled exchanges | Leave as default; manage from the dashboard's Admin tab after first boot |
 | `PORT`, `GRAPH_QL_PORT`, `WS_PORT`, `BACKTEST_PORT`, `ADMIN_PORT` | Service host-side ports | Only if you've got something else on those ports |

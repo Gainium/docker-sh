@@ -80,13 +80,18 @@ Any Gainium account's key lets you register; a paid plan only unlocks premium fe
 ### 🔐 Encryption key (`ENCRYPT_KEY`)
 
 The exchange API credentials your users add are stored encrypted, and
-`ENCRYPT_KEY` is what encrypts them. Generate one for your installation:
+`ENCRYPT_KEY` is what encrypts them. A new installation generates its own
+key, and its own `JWT_SECRET`, on first boot (the `secrets-init` service). To
+copy the key into `.env` as your backup, or to set one before the first boot:
 
 ```bash
 ./setupEncryptKey.sh
 ```
 
-Without it, the application falls back to a key compiled into the image —
+A value set in `.env` always wins over the generated one. An existing
+installation never has a key generated for it.
+
+Without a key of its own, the application falls back to a key compiled into the image —
 the same one in every self-hosted installation, and readable in the
 public source — so a copy of your database would be enough on its own to
 decrypt every stored credential. With your own key, it is not.
