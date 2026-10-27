@@ -26,6 +26,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Positions and the Trading Bots summary failed after the last frontend
+  update.** The previous release paired `frontend` 2.104.1 with `main-app`
+  1.102.7, but that frontend asks the backend for a bot setting (timer start
+  on selected weekdays) that only `main-app` 1.104.0 and later serve. The
+  backend rejects the whole request, so Terminal → Positions showed
+  `Cannot query field "hodlWeekdays"` and the Trading Bots summary read
+  `0/0`. `frontend` is pinned back to **2.101.6**, the version released
+  with this `main-app`, until both are published together. After
+  `git pull`, run `docker compose pull frontend && docker compose up -d frontend`.
+  An install whose frontend was upgraded from Admin → Services keeps that
+  page's own version override, which takes precedence over this file, so it
+  stays on 2.104.1 until the next release pairs it with a newer `main-app`.
+
 - **The documented upgrade path never upgraded anything.** `DEPLOYMENT.md`
   (§ 1.5) and `README.md` told operators to run `docker compose pull &&
   docker compose up -d`, but the image tags are defaults inside the tracked
