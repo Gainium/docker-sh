@@ -217,6 +217,13 @@ Reported by **M1ch43lV**, whose reports prompted this release.
 ### Changed
 - Updated **frontend** image from **2.101.6 ➜ 2.104.1**.
 
+## [auto-2026-10-28] - 2026-10-28
+### Changed
+- Updated **exchange-connector** image from **1.27.16 ➜ 1.27.21**.
+- Updated **paper-trading** image from **1.3.11 ➜ 1.3.12**.
+- Updated **main-app** image from **1.102.7 ➜ 1.118.1**.
+- Updated **frontend** image from **2.101.6 ➜ 2.120.3**, published together with the `main-app` above. Grid bots in Manual mode now read pairs such as BAT/USD and QNT/USD with a USD quote instead of TUSD.
+
 ## [2.5.0] - 2026-07-01
 ### Added
 - Updated **frontend** image from **2.14.0 ➜ 2.22.0** and **admin-sh** from **1.0.1 ➜ 1.1.0**: new **Admin → Diagnostics** page — per-exchange live price-feed liveness, Redis reachability, and service health. Flags enabled exchanges receiving no live data (the usual reason a simulated bot silently stops trading).
