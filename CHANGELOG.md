@@ -222,6 +222,7 @@ Reported by **M1ch43lV**, whose reports prompted this release.
 - Updated **exchange-connector** image from **1.27.16 ➜ 1.27.21**.
 - Updated **paper-trading** image from **1.3.11 ➜ 1.3.12**.
 - Updated **main-app** image from **1.102.7 ➜ 1.118.1**.
+- Updated **frontend** image from **2.101.6 ➜ 2.120.3**, published together with the `main-app` above. Grid bots in Manual mode now read pairs such as BAT/USD and QNT/USD with a USD quote instead of TUSD.
 
 ## [2.5.0] - 2026-07-01
 ### Added
