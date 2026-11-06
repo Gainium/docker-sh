@@ -522,6 +522,56 @@ services:
       api:
         condition: service_healthy 
 
+  fill-failsafe:
+    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.124.0}
+    restart: 'unless-stopped'
+    hostname: fill-failsafe
+    # Missed-fill failsafe. A live bot learns that a resting limit order filled
+    # from the exchange's user stream; if that event is lost the bot keeps
+    # waiting (a grid stops shifting, a DCA deal stops averaging). This watches
+    # resting limit orders against the live price and, when price has clearly
+    # crossed one the bot still holds as open, has the bot re-check it with the
+    # exchange. Set FF_ENABLED=false in .env to turn it off.
+    command: ["npm", "run", "failsafe"]  # Override the default command
+    environment:
+      - MONGO_DB_USERNAME=${MONGO_DB_USERNAME}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
+      - MONGO_DB_NAME=${MONGO_DB_NAME}
+      - MONGO_DB_PORT=${MONGO_DB_PORT}
+      - MONGO_DB_HOST=${MONGO_DB_HOST}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - RABBIT_HOST=${RABBIT_HOST}
+      - RABBIT_USER=${RABBIT_USER}
+      - RABBIT_PASSWORD=${RABBIT_PASSWORD}
+      - EXCHANGE_SERVICE_API_URL=${EXCHANGE_SERVICE_API_URL}
+      - PAPER_TRADING_API_URL=${PAPER_TRADING_API_URL}
+      - ENCRYPT_KEY=${ENCRYPT_KEY}
+      - FF_ENABLED=${FF_ENABLED:-true}
+      - FF_SHADOW=false
+      - NODE_ENV=production
+      - npm_config_loglevel=silent
+      - npm_config_update_notifier=false
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbit:
+        condition: service_healthy
+      exchange-connector:
+        condition: service_healthy
+      paper-trading:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+
   stream:
     image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.124.0}
     restart: 'unless-stopped'

@@ -28,6 +28,7 @@ A Gainium SH install runs the following services:
 | **Indicators** | `app-sh` (`indicators`) | Streams TA indicators to bots / dashboard | internal |
 | **Backtest** | `app-sh` (`backtest`) | Server-side strategy backtests | `7515` |
 | **Cron** | `app-sh` (`cron`) | Scheduled snapshots / cleanup / fx rates | internal |
+| **Fill failsafe** | `app-sh` (`failsafe`) | Catches limit-order fills the exchange stream missed; asks the bot to re-check | internal |
 | **Exchange connector** | [`exchange-connector-sh`](https://github.com/Gainium/exchange-connector-sh) | REST adapter to every supported exchange | `7510` (host) / internal in docker |
 | **Paper trading** | [`paper-trading-sh`](https://github.com/Gainium/paper-trading-sh) | Simulated exchange used by paper bots | `7506` (host) / internal in docker |
 | **User WebSocket connector** | [`websocket-connector-sh`](https://github.com/Gainium/websocket-connector-sh) (`main`) | Exchange user-data WS → Redis/Rabbit fan-out | internal |
