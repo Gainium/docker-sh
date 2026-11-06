@@ -83,6 +83,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [auto-2026-11-06] - 2026-11-06
 ### Changed
+- Updated **admin-sh** image from **1.4.3 ➜ 1.4.4**.
+
+## [auto-2026-11-06] - 2026-11-06
+### Changed
 - Updated **main-app** image from **1.123.12 ➜ 1.124.0**.
 
 ## [auto-2026-11-01] - 2026-11-01
