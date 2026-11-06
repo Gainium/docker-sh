@@ -771,7 +771,7 @@ services:
   # self-upgrade fails) upgrade admin-sh by hand from this dir:
   #   docker compose pull admin-sh && docker compose up -d --force-recreate admin-sh
   admin-sh:
-    image: docker.gainium.io/gainium/admin-sh:${ADMIN_SH_VERSION:-1.4.3}
+    image: docker.gainium.io/gainium/admin-sh:${ADMIN_SH_VERSION:-1.4.4}
     restart: 'unless-stopped'
     hostname: admin-sh
     # Run as root inside the container so we can read /var/run/docker
