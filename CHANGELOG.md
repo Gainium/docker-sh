@@ -71,6 +71,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [auto-2026-11-06] - 2026-11-06
+### Changed
+- Updated **main-app** image from **1.123.12 ➜ 1.124.0**.
+
 ## [auto-2026-11-01] - 2026-11-01
 ### Changed
 - Updated **exchange-connector** image from **1.27.23 ➜ 1.27.26**.
