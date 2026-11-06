@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Missed-fill failsafe (`fill-failsafe` service).** On a live exchange a bot
+  learns that a resting limit order filled only from the exchange's user
+  stream. If that event was lost, the bot kept waiting on an order that was
+  already gone — a grid stopped shifting, a DCA deal stopped averaging — until
+  the bots were restarted. The new service watches resting limit orders against
+  the live price and, when price has clearly crossed one the bot still holds as
+  open, has the bot re-check its orders with the exchange so the fill is booked.
+  It also checks that every bot is still receiving its user stream and asks a
+  deaf one to resubscribe. On by default; `FF_ENABLED=false` in `.env` turns it
+  off. Requires main-app 1.124.0.
 - **Per-installation encryption key.** `ENCRYPT_KEY` is now wired through to
   every service that reads or writes stored exchange API credentials, and
   `./setupEncryptKey.sh` generates one into the host `.env` (32 random bytes,

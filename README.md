@@ -267,12 +267,13 @@ All services share the same codebase but run different commands:
 - **bots-hedge-dca**: Hedge DCA bots
 - **indicators**: Technical indicators processor
 - **cron**: Scheduled tasks and maintenance
+- **fill-failsafe**: Catches limit-order fills the exchange stream missed
 - **backtest**: Strategy backtesting service
 
 ### Frontend Service (1)
 - **frontend**: Next.js web dashboard (Port 7500)
 
-**Total: 18 Services**
+**Total: 19 Services**
 
 ## 🐳 Docker Images
 
