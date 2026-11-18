@@ -66,6 +66,15 @@ docker-compose logs -f
 - **WebSocket**: ws://localhost:7502 (Real-time data)
 - **Frontend**: http://localhost:7500 (Web dashboard)
 
+### 6. Create your account (license key)
+The sign-up screen asks for a license key. It's free:
+
+1. Sign in or sign up at https://app.gainium.io
+2. Open **Settings → License Key** (https://app.gainium.io/settings/license-key)
+3. Click **Generate license key**, copy it, and paste it into the sign-up form
+
+Any Gainium account's key lets you register; a paid plan only unlocks premium features.
+
 ## 🔧 Environment Configuration
 
 ### 🔐 Encryption key (`ENCRYPT_KEY`)
