@@ -160,7 +160,7 @@ services:
       start_period: 30s
 
   exchange-connector:
-    image: docker.gainium.io/gainium/exchange-connector:${EXCHANGE_CONNECTOR_VERSION:-1.27.27}
+    image: docker.gainium.io/gainium/exchange-connector:${EXCHANGE_CONNECTOR_VERSION:-1.29.4}
     restart: 'unless-stopped'
     hostname: exchange-connector
     environment:
@@ -183,7 +183,7 @@ services:
         condition: service_healthy
 
   paper-trading:
-    image: docker.gainium.io/gainium/paper-trading:${PAPER_TRADING_VERSION:-1.3.12}
+    image: docker.gainium.io/gainium/paper-trading:${PAPER_TRADING_VERSION:-1.4.0}
     restart: 'unless-stopped'
     hostname: paper-trading
     environment:
@@ -221,7 +221,7 @@ services:
   
   # Main API service using versioned image from registry
   api:
-    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.129.2}
+    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.132.12}
     restart: 'unless-stopped'
     hostname: api
     <<: *with-secrets
@@ -311,7 +311,7 @@ services:
 
   # All other main-app services use the same image (no build config)
   bots-dca:
-    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.129.2}
+    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.132.12}
     restart: 'unless-stopped'
     hostname: bots-dca
     <<: *with-secrets
@@ -356,7 +356,7 @@ services:
         condition: service_healthy 
 
   bots-grid:
-    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.129.2}
+    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.132.12}
     restart: 'unless-stopped'
     hostname: bots-grid
     <<: *with-secrets
@@ -401,7 +401,7 @@ services:
         condition: service_healthy  
 
   bots-combo:
-    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.129.2}
+    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.132.12}
     restart: 'unless-stopped'
     hostname: bots-combo
     <<: *with-secrets
@@ -446,7 +446,7 @@ services:
         condition: service_healthy  
 
   bots-hedge-combo:
-    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.129.2}
+    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.132.12}
     restart: 'unless-stopped'
     hostname: bots-hedge-combo
     <<: *with-secrets
@@ -491,7 +491,7 @@ services:
         condition: service_healthy
 
   bots-hedge-dca:
-    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.129.2}
+    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.132.12}
     restart: 'unless-stopped'
     hostname: bots-hedge-dca
     <<: *with-secrets
@@ -536,7 +536,7 @@ services:
         condition: service_healthy 
 
   indicators:
-    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.129.2}
+    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.132.12}
     restart: 'unless-stopped'
     hostname: indicators
     <<: *with-secrets
@@ -578,7 +578,7 @@ services:
       api:
         condition: service_healthy 
   cron:
-    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.129.2}
+    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.132.12}
     restart: 'unless-stopped'
     hostname: cron
     <<: *with-secrets
@@ -621,7 +621,7 @@ services:
         condition: service_healthy 
 
   fill-failsafe:
-    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.129.2}
+    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.132.12}
     restart: 'unless-stopped'
     hostname: fill-failsafe
     <<: *with-secrets
@@ -672,7 +672,7 @@ services:
         condition: service_healthy
 
   stream:
-    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.129.2}
+    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.132.12}
     restart: 'unless-stopped'
     hostname: stream
     <<: *with-secrets
@@ -709,7 +709,7 @@ services:
         condition: service_healthy 
 
   backtest:
-    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.129.2}
+    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.132.12}
     restart: 'unless-stopped'
     hostname: backtest
     <<: *with-secrets
@@ -811,7 +811,7 @@ services:
   cli-runner:
     profiles: ["cli"]
     <<: *with-secrets
-    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.129.2}
+    image: docker.gainium.io/gainium/main-app:${MAIN_APP_VERSION:-1.132.12}
     environment:
       - MONGO_DB_USERNAME=${MONGO_DB_USERNAME:-user}
       - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD:-password}
@@ -831,7 +831,7 @@ services:
   # `PORT` is templated into nginx.conf at container start (defaults to 7555
   # inside the image, overridden here via env).
   frontend:
-    image: docker.gainium.io/gainium/frontend:${FRONTEND_VERSION:-2.135.5}
+    image: docker.gainium.io/gainium/frontend:${FRONTEND_VERSION:-2.135.20}
     restart: 'unless-stopped'
     hostname: frontend
     ports:
@@ -883,7 +883,7 @@ services:
   # self-upgrade fails) upgrade admin-sh by hand from this dir:
   #   docker compose pull admin-sh && docker compose up -d --force-recreate admin-sh
   admin-sh:
-    image: docker.gainium.io/gainium/admin-sh:${ADMIN_SH_VERSION:-1.4.4}
+    image: docker.gainium.io/gainium/admin-sh:${ADMIN_SH_VERSION:-1.4.5}
     restart: 'unless-stopped'
     hostname: admin-sh
     <<: *with-secrets
